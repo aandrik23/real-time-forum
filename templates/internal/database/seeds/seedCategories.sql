@@ -1,0 +1,22 @@
+INSERT OR IGNORE INTO categories (name) VALUES
+    ('Technology'),
+    ('Science'),
+    ('Art'),
+    ('Health'),
+    ('Sports'),
+    ('Pets'),
+    ('Gaming'),
+    ('Programming'),
+    ('News'),
+    ('Music'),
+    ('Movies'),
+    ('Travel'),
+    ('Books'),
+    ('Food'),
+    ('Education'),
+    ('History'),
+    ('Anime'),
+    ('Memes'),
+    ('Hobbies'),
+    ('Random');
+

@@ -1,0 +1,23 @@
+File					Responsibility
+router.js			   When to navigate
+loadPage.js	   	      What to load
+auth.js			  	      Auth truth & resets
+render*.js	     		 HTML only
+initPageContent()     Behavior wiring
+
+Because of this:
+
+Auth bugs don’t leak into rendering
+
+Rendering bugs don’t break navigation
+
+You can refactor UI without touching logic
+
+You can swap API shapes without touching router
+
+One-liner mental model
+
+Router moves.
+LoadPage decides.
+Render builds.
+Init binds.

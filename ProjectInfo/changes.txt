@@ -1,0 +1,34 @@
+✅ Persisted 1:1 conversations + messages
+
+✅ Threads endpoint (sorted / fallback alphabetical)
+
+✅ Message pagination endpoint (10 at a time via before_id)
+
+✅ WS realtime delivery + presence
+
+✅ Anonymous excluded, JTI enforced
+
+✅ No empty messages
+
+✅ WS loop fixed, origin tightened
+
+✅ Route order correct
+
+
+push2 
+
+✅ private messaging via WS
+
+✅ stored history + pagination (10 at a time)
+
+✅ realtime delivery
+
+✅ online/offline presence
+
+✅ thread ordering by last message
+
+✅ anonymous excluded + JTI enforced
+
+✅ no empty messages + max size
+
+✅ no empty conversations created by “view”

@@ -1,0 +1,10 @@
+BEGIN TRANSACTION;
+
+	CREATE TABLE IF NOT EXISTS token_store (
+		jti TEXT PRIMARY KEY,
+		uuid TEXT NOT NULL,
+		token_type TEXT NOT NULL,
+		expires_at INTEGER NOT NULL
+	);
+   
+COMMIT;

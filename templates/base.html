@@ -1,0 +1,197 @@
+{{ define "base" }}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Speak Easy</title>
+
+        <link rel="icon" href="/static/img/logo.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/static/css/style.css" type="text/css">
+        <link
+                href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+                rel="stylesheet"
+        />
+    </head>
+    <body
+        class="{{ if not .IsLoggedIn }}force-black{{ end }}"
+        data-show-login="{{ if .IsLoggedIn }}0{{ else }}1{{ end }}"
+        data-user-id="{{ .UserID }}"
+    >
+      <!-- Navbar -->
+    <header class="navbar">
+        <div class="navbar-inner container">
+            <!-- LEFT: Logo + Home icon + Grid icon + New-post icon -->
+            <div class="nav-left">
+                <a href="/" class="logo">
+                    <img src="/static/img/logo.png" alt="Forum Logo" class="logo-img">
+                    <span class="logo-text">Speak Easy</span>
+                </a>
+                <a href="/" class="icon-btn home-btn" aria-label="Home" role="button"></a>
+                <div class="dropdown nav-categories">
+                    <button class="icon-btn categories-btn" id="categoriesDropdownBtn" aria-haspopup="true" aria-expanded="false" aria-label="Categories"></button>
+                    <div class="dropdown-menu categories-dropdown-menu" id="categoriesDropdownMenu" aria-label="Categories list">
+                        <ul id="categoriesList"></ul>
+                    </div>
+                </div>
+
+                <button class="icon-btn newpost-btn" aria-label="New Post"></button>
+            </div>
+
+            <!-- CENTER: Search, Notifications & Dark-mode toggle -->
+            <div class="nav-center">
+                <button class="icon-btn notif-btn" aria-label="Notifications">
+                    <span class="badge">1</span>
+                </button>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- RIGHT: Log in / Register -->
+            <div class="nav-right">
+                <button id="loginBtn" class="btn pill login-btn">LOG IN</button>
+                <button id="registerBtn" class="btn pill register-btn">REGISTER</button>
+                <button id="logoutBtn" class="btn pill logout-btn hidden">LOG OUT</button>
+              </div>
+              
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+            </nav>
+            <nav class="sidebar-icons">
+                <a href="/" class="sidebar-btn home-btn" aria-label="Home" role="button"></a>
+                <a href="/profile" class="sidebar-btn profile-btn" aria-label="Profile" role="button"></a>
+                <a href="/posts/new" class="sidebar-btn create-btn" aria-label="Create Post" role="button"></a>
+            </nav>
+
+        </aside>
+
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar"></button>
+
+        <div class="container content">
+            <main id="app-root">
+                {{ block "content" . }}{{ end }}
+            </main>
+          </div>          
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top container">
+            <!-- ABOUT -->
+            <div class="footer-col about">
+                <h3>About Speak Easy</h3>
+                <p>Your one-stop home for all things community—connect, discuss, and share.</p>
+            </div>
+
+            <!-- QUICK LINKS -->
+            <div class="footer-col links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                   
+                    <li><a href="#" id="footerLoginLink">Log In</a></li>
+                    <li><a href="#" id="footerRegisterLink">Register</a></li>
+                </ul>
+            </div>
+
+            <!-- CONTACT -->
+            <div class="footer-col contact">
+                <h3>Contact Us</h3>
+                <p>Email: <a href="mailto:support@speakeasy.com">support@speakeasy.com</a></p>
+                <p>Phone: (555) 123-4567</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom container">
+            <hr>
+            <p>© 2025 Speak Easy. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- LOGIN Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <h2>Log In</h2> 
+
+            <form id="loginForm" action="/api/login" method="POST" class="auth-form">
+                <label for="login-identifier">Username or Email</label>
+                <input type="text" id="login-identifier" name="identifier" required autofocus>
+
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+
+                <div class="form-error" style="color: red; margin-top: .5rem;"></div>
+                <button type="submit" class="btn pill">Log In</button>
+            </form>
+
+            <p class="modal-footer-text">
+                Don’t have an account?
+                <a href="#" id="showRegister">Register here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- REGISTER Modal -->
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <h2>Sign Up</h2>
+
+            <form id="registerForm" action="/api/register" method="POST" class="auth-form">
+                <label for="reg-username">Username</label>
+                <input type="text" id="reg-username" name="username" required>
+                
+                <label for="reg-first-name">First Name</label>
+                <input type="text" id="reg-first-name" name="first_name" required>
+                
+                <label for="reg-last-name">Last Name</label>
+                <input type="text" id="reg-last-name" name="last_name" required>
+                
+                <div class="row">
+                    <label for="reg-age">Age</label>
+                    <input type="number" id="reg-age" name="age" min="1" required>
+                    
+                    <label for="reg-gender">Gender</label>
+                    <select id="reg-gender" name="gender" required>
+                      <option value="">Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <label for="reg-password">Password</label>
+                <input type="password" id="reg-password" name="password" required>
+
+                <label for="reg-password2">Verify Password</label>
+                <input type="password" id="reg-password2" name="password2" required>
+
+                <label for="reg-email">Email</label>
+                <input type="email" id="reg-email" name="email" required>
+                
+                <div class="form-error" style="color:red; margin-bottom:1em"></div>
+                <button type="submit" class="btn pill">Register</button>
+            </form>
+
+            <p class="modal-footer-text">
+                Already have an account?
+                <a href="#" id="showLogin">Log in here</a>
+            </p>
+        </div>
+    </div>
+    <div id="chat-root"></div>
+
+    <script type="module" src="/static/js/main.js"></script>
+    <script type="module" src="/static/js/chat.js"></script>
+    <div id="authBackdrop"></div>
+    </body>
+    </html>
+{{ end }}
+
