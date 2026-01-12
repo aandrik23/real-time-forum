@@ -565,12 +565,16 @@ html.dark-mode .logout-btn:focus {
 /* top section: 3 columns, responsive */
 .footer-top {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
     padding: 1.5rem 0;
 }
 .footer-col {
-    flex: 1 1 200px;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 520px;
+    
 }
 .footer-col p {
     margin: 0 0 0.75rem;
@@ -664,6 +668,9 @@ body[data-show-login="1"] .sidebar,
 body[data-show-login="1"] #sidebar-toggle {
   display: none !important;
 }
+body[data-show-login="1"] .nav-profile-btn {
+  display: none !important;
+}
 
 .sidebar-toggle {
     position: fixed;
@@ -696,7 +703,7 @@ body[data-show-login="1"] #sidebar-toggle {
 }
 
 .container.content {
-    margin-left: 90px;
+    margin-left: 0;
     margin-top: 64px;
     transition: margin-left 0.3s ease;
 }
@@ -1380,7 +1387,7 @@ html.dark-mode .profile-edit-btn {
         flex-direction: column;
         gap: 0.5rem;
         padding: 1rem 0;
-        text-align: center;
+        text-align: left;
     }
     .footer-col {
         flex: 1 1 100%;

@@ -5,7 +5,6 @@ import { navigate } from "./router.js";
 const sidebar = document.querySelector(".sidebar");
 const toggleBtn = document.getElementById("sidebar-toggle");
 const contentWrapper = document.querySelector(".container.content");
-const profileBtn = document.querySelector(".sidebar-btn.profile-btn");
 
 // ------------------ FILTER MODAL (updated for SPA) ------------------
 export function initFilterModal() {

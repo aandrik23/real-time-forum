@@ -1,7 +1,7 @@
 import {initLoginForm, initRegisterForm, initAuthModals, initLogout} from "./auth.js";
 import { initPageContent, loadPage } from "./loadPage.js";
 import { initProfileDislikesRedirect, initProfileLikesRedirect, initProfilePostsRedirect } from "./profile.js";
-import { initNavLinks, initSidebarToggle, initThemeToggle } from "./navigation.js";
+import { initNavLinks, initThemeToggle } from "./navigation.js";
 import { initLinkInterceptor } from "./router.js";
 import { fillCsrfInputs, openModal } from "./utils.js";
 import { initCommentForm, initLikeButtons } from "./comments.js";
@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   initLikeButtons();
   initCommentForm();
-  initSidebarToggle();
   initNavLinks();
   initProfilePostsRedirect();
   initProfileLikesRedirect();

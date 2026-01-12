@@ -51,6 +51,7 @@
 
             <!-- RIGHT: Log in / Register -->
             <div class="nav-right">
+                <a href="/profile" class="icon-btn profile-btn nav-profile-btn" aria-label="Profile" role="button"></a>
                 <button id="loginBtn" class="btn pill login-btn">LOG IN</button>
                 <button id="registerBtn" class="btn pill register-btn">REGISTER</button>
                 <button id="logoutBtn" class="btn pill logout-btn hidden">LOG OUT</button>
@@ -60,19 +61,6 @@
     </header>
 
     <div class="main-layout">
-        <aside class="sidebar">
-            <nav class="sidebar-nav">
-            </nav>
-            <nav class="sidebar-icons">
-                <a href="/" class="sidebar-btn home-btn" aria-label="Home" role="button"></a>
-                <a href="/profile" class="sidebar-btn profile-btn" aria-label="Profile" role="button"></a>
-                <a href="/posts/new" class="sidebar-btn create-btn" aria-label="Create Post" role="button"></a>
-            </nav>
-
-        </aside>
-
-        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar"></button>
-
         <div class="container content">
             <main id="app-root">
                 {{ block "content" . }}{{ end }}
@@ -194,4 +182,3 @@
     </body>
     </html>
 {{ end }}
-

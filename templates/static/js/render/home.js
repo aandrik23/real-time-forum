@@ -48,7 +48,6 @@ function renderFilterBar(data) {
     : "";
 
   const categoryOptions = `
-    <option value="">All Categories</option>
     ${cats.map(c => `<option value="${c.ID}">${escapeHtml(c.Name)}</option>`).join("")}
   `;
 
@@ -56,9 +55,6 @@ function renderFilterBar(data) {
     <section class="filter-bar">
       <a class="btn" href="/home">All Posts</a>
       ${myButtons}
-      <select id="categorySelect">
-        ${categoryOptions}
-      </select>
       ${newPostBtn}
     </section>
   `;
