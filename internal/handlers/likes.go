@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	authutils "forum/internal/authUtils"
 	"forum/internal/database"
+	"forum/internal/realtime"
 	"net/http"
+	"context"
 	"strconv"
 	"strings"
 )
@@ -70,10 +72,51 @@ func LikesHandler(w http.ResponseWriter, r *http.Request) {
 
 	// err = database.InsertorUpdateReaction(payload.UserID, targetType, targetID, isLike)
 
-	if err := database.InsertorUpdateReaction(payload.UserID, targetType, targetID, isLike); err != nil { // MOCK this for now
-		http.Error(w, "Failed to save reaction", http.StatusInternalServerError)
-		return
-	}
+result, err := database.InsertorUpdateReaction(
+    payload.UserID,
+    targetType,
+    targetID,
+    isLike,
+)
+if err != nil {
+    http.Error(w, "Failed to save reaction", http.StatusInternalServerError)
+    return
+}
+if result == database.ReactionLiked {
+
+    var ownerID int
+    var err error
+
+    if targetType == "post" {
+        ownerID, err = database.GetPostAuthorID(targetID)
+    } else {
+        ownerID, err = database.GetCommentAuthorID(targetID)
+    }
+
+    if err == nil && ownerID > 0 && ownerID != payload.UserID {
+
+        notifSvc := &NotificationService{
+            DB:  database.DB,
+            Hub: realtime.Notif,
+        }
+
+        go func() {
+            _ = notifSvc.CreateNotification(
+                context.Background(),
+                int64(ownerID),
+                int64(payload.UserID),
+                "like",
+                int64(targetID),
+                map[string]any{
+                    "message": payload.Username + " liked your " + targetType,
+                    "target":  targetType,
+                    "id":      targetID,
+                },
+            )
+        }()
+    }
+}
+
 
 	// Fetch updated counts and user reaction
 	likes, dislikes, userReaction, err := database.GetReactionStatsAndUserReaction(payload.UserID, targetType, targetID)

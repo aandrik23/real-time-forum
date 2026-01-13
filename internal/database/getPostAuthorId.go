@@ -21,3 +21,18 @@ func GetPostAuthorID(postID int) (int, error) {
 
 	return int(userID.Int64), nil
 }
+func GetCommentAuthorID(commentID int) (int, error) {
+	var userID int
+	err := DB.QueryRow(`
+		SELECT user_id
+		FROM comments
+		WHERE id = ?
+	`, commentID).Scan(&userID)
+	if err != nil {
+		return 0, err
+	}
+	return userID, nil
+}
+
+
+
