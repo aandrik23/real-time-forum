@@ -3,6 +3,8 @@ package internal
 import (
 	authutils "forum/internal/authUtils"
 	"forum/internal/handlers"
+		"forum/internal/realtime"
+
 	"net/http"
 )
 
@@ -60,6 +62,15 @@ func Handlers() {
 	mux.HandleFunc("/api/logout", apiAuth(handlers.LogoutHandler))
 
 	mux.HandleFunc("/ws/dm", apiProtected(handlers.DMWebSocketHandler))
+	mux.HandleFunc("/ws/notifications", apiAuth(handlers.NotificationWebSocketHandler))
+
+	    // Temporary test route
+    mux.HandleFunc("/test-notif", func(w http.ResponseWriter, r *http.Request) {
+        notif := map[string]string{"message": "test notification!"}
+        realtime.Notif.SendToUser(2, notif)
+        w.Write([]byte("sent"))
+    })
+
 	// 4) SPA shell catch-all (PUBLIC)
 	mux.HandleFunc("/", apiAuth(handlers.SPAShellHandler))
 

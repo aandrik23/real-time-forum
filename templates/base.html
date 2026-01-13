@@ -1,24 +1,21 @@
 {{ define "base" }}
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Speak Easy</title>
+<!DOCTYPE html>
+<html lang="en">
 
-        <link rel="icon" href="/static/img/logo.ico" type="image/x-icon">
-        <link rel="stylesheet" href="/static/css/style.css" type="text/css">
-        <link
-                href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
-                rel="stylesheet"
-        />
-    </head>
-    <body
-        class="{{ if not .IsLoggedIn }}force-black{{ end }}"
-        data-show-login="{{ if .IsLoggedIn }}0{{ else }}1{{ end }}"
-        data-user-id="{{ .UserID }}"
-    >
-      <!-- Navbar -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Speak Easy</title>
+
+    <link rel="icon" href="/static/img/logo.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/style.css" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="{{ if not .IsLoggedIn }}force-black{{ end }}" data-show-login="{{ if .IsLoggedIn }}0{{ else }}1{{ end }}"
+    data-user-id="{{ .UserID }}">
+    <!-- Navbar -->
     <header class="navbar">
         <div class="navbar-inner container">
             <!-- LEFT: Logo + Home icon + Grid icon + New-post icon -->
@@ -29,8 +26,10 @@
                 </a>
                 <a href="/" class="icon-btn home-btn" aria-label="Home" role="button"></a>
                 <div class="dropdown nav-categories">
-                    <button class="icon-btn categories-btn" id="categoriesDropdownBtn" aria-haspopup="true" aria-expanded="false" aria-label="Categories"></button>
-                    <div class="dropdown-menu categories-dropdown-menu" id="categoriesDropdownMenu" aria-label="Categories list">
+                    <button class="icon-btn categories-btn" id="categoriesDropdownBtn" aria-haspopup="true"
+                        aria-expanded="false" aria-label="Categories"></button>
+                    <div class="dropdown-menu categories-dropdown-menu" id="categoriesDropdownMenu"
+                        aria-label="Categories list">
                         <ul id="categoriesList"></ul>
                     </div>
                 </div>
@@ -40,13 +39,20 @@
 
             <!-- CENTER: Search, Notifications & Dark-mode toggle -->
             <div class="nav-center">
-                <button class="icon-btn notif-btn" aria-label="Notifications">
-                    <span class="badge">1</span>
+                <!-- Notification Button -->
+                <button id="notif-btn" aria-label="Notifications">
+                    Notifications <span id="notif-badge">0</span>
                 </button>
                 <label class="switch">
                     <input type="checkbox" id="theme-toggle">
                     <span class="slider"></span>
                 </label>
+                <!-- Notification Dropdown -->
+                <div id="notif-dropdown" style="display: none;">
+                    <ul id="notif-list">
+                        <!-- Notifications will be appended here -->
+                    </ul>
+                </div>
             </div>
 
             <!-- RIGHT: Log in / Register -->
@@ -55,8 +61,8 @@
                 <button id="loginBtn" class="btn pill login-btn">LOG IN</button>
                 <button id="registerBtn" class="btn pill register-btn">REGISTER</button>
                 <button id="logoutBtn" class="btn pill logout-btn hidden">LOG OUT</button>
-              </div>
-              
+            </div>
+
         </div>
     </header>
 
@@ -65,7 +71,7 @@
             <main id="app-root">
                 {{ block "content" . }}{{ end }}
             </main>
-          </div>          
+        </div>
     </div>
 
     <!-- Footer -->
@@ -82,7 +88,7 @@
                 <h3>Quick Links</h3>
                 <ul>
                     <li><a href="/">Home</a></li>
-                   
+
                     <li><a href="#" id="footerLoginLink">Log In</a></li>
                     <li><a href="#" id="footerRegisterLink">Register</a></li>
                 </ul>
@@ -106,7 +112,7 @@
     <div id="loginModal" class="modal-overlay">
         <div class="modal-card">
             <button class="modal-close" data-modal-close>&times;</button>
-            <h2>Log In</h2> 
+            <h2>Log In</h2>
 
             <form id="loginForm" action="/api/login" method="POST" class="auth-form">
                 <label for="login-identifier">Username or Email</label>
@@ -135,26 +141,26 @@
             <form id="registerForm" action="/api/register" method="POST" class="auth-form">
                 <label for="reg-username">Username</label>
                 <input type="text" id="reg-username" name="username" required>
-                
+
                 <label for="reg-first-name">First Name</label>
                 <input type="text" id="reg-first-name" name="first_name" required>
-                
+
                 <label for="reg-last-name">Last Name</label>
                 <input type="text" id="reg-last-name" name="last_name" required>
-                
+
                 <div class="row">
                     <label for="reg-age">Age</label>
                     <input type="number" id="reg-age" name="age" min="1" required>
-                    
+
                     <label for="reg-gender">Gender</label>
                     <select id="reg-gender" name="gender" required>
-                      <option value="">Select</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
                     </select>
                 </div>
-                
+
                 <label for="reg-password">Password</label>
                 <input type="password" id="reg-password" name="password" required>
 
@@ -163,7 +169,7 @@
 
                 <label for="reg-email">Email</label>
                 <input type="email" id="reg-email" name="email" required>
-                
+
                 <div class="form-error" style="color:red; margin-bottom:1em"></div>
                 <button type="submit" class="btn pill">Register</button>
             </form>
@@ -178,7 +184,9 @@
 
     <script type="module" src="/static/js/main.js"></script>
     <script type="module" src="/static/js/chat.js"></script>
+    <script type="module" src="/static/js/notifications.js"></script>
     <div id="authBackdrop"></div>
-    </body>
-    </html>
+</body>
+
+</html>
 {{ end }}

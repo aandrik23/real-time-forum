@@ -48,35 +48,40 @@ func InitDB() {
 func initializeTables() {
 	// Run schema files
 	if err := execSQLFile(databasePath + "createUser.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createUser.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createCookies.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createCookies.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createCategories.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createCategories.sql: %v", err)
 	}
 
 	if err := execSQLFile(databasePath + "createComments.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createComments.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createLikes.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createLikes.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createPost_Categories.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createPost_Categories.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createPost.sql"); err != nil {
-		log.Fatalf("Failed to execute user.sql: %v", err)
+		log.Fatalf("Failed to execute createPost.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createConversations.sql"); err != nil {
 		log.Fatalf("Failed to execute createConversations.sql: %v", err)
 	}
 	if err := execSQLFile(databasePath + "createMessages.sql"); err != nil {
 		log.Fatalf("Failed to execute createMessages.sql: %v", err)
+	}	
+	if err := execSQLFile(databasePath + "createNotifications.sql"); err != nil {
+		log.Fatalf("Failed to execute createNotifications.sql: %v", err)
 	}
+	
 	//seed categories
 	if err := execSQLFile(seedPath + "seedCategories.sql"); err != nil {
-		log.Fatalf("Failed to execute seed.sql: %v", err)
+		log.Fatalf("Failed to execute seedCategories.sql: %v", err)
 	}
+
 }

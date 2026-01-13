@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	authutils "forum/internal/authUtils"
 	"forum/internal/database"
+	"forum/internal/realtime"
 	"net/http"
 	"strconv"
 	"time"
+	"fmt"
+	"context"
+
 )
 
 type CreateCommentResp struct {
@@ -51,6 +55,37 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go func() {
+    postAuthorID, err := database.GetPostAuthorID(comment.PostID)
+    if err != nil || postAuthorID == 0 || postAuthorID == payload.UserID {
+        return
+    }
+
+    NotificationSvc := &NotificationService{
+        DB:  database.DB,
+        Hub: realtime.Notif,
+    }
+
+    // Use a new background context instead of r.Context()
+    if err := NotificationSvc.CreateNotification(
+        context.Background(),  // <-- separate context
+        int64(postAuthorID),
+        int64(payload.UserID),
+        "comment",
+        int64(comment.PostID),
+        map[string]interface{}{
+            "message":    payload.Username + " commented on your post",
+            "comment_id": c.ID,
+        },
+    ); err != nil {
+        fmt.Println("Failed to create notification:", err)
+    }
+}()
+
+
+
+
+
 	resp := CreateCommentResp{
 		ID:        c.ID,
 		Author:    payload.Username,
@@ -59,6 +94,7 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 		Likes:     0,
 		Dislikes:  0,
 	}
+	
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(resp)
