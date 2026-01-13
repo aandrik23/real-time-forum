@@ -116,6 +116,38 @@ function isChatPanelMinimized() {
   return document.getElementById("chat-panel")?.classList.contains("minimized") || false;
 }
 
+let chatSidebarRaf = null;
+
+function updateChatSidebarStop() {
+  const sidebar = document.getElementById("chat-sidebar");
+  const footer = document.querySelector(".footer");
+  if (!sidebar || !footer) return;
+
+  const navbarVar = getComputedStyle(document.documentElement).getPropertyValue("--navbar-h");
+  const navbarPx = parseFloat(navbarVar) || 0;
+  const sidebarHeight = sidebar.getBoundingClientRect().height || (window.innerHeight - navbarPx);
+
+  const footerTop = footer.getBoundingClientRect().top + window.scrollY;
+  const stopTop = footerTop - sidebarHeight;
+  const sidebarDocTop = window.scrollY + navbarPx;
+
+  if (sidebarDocTop >= stopTop) {
+    sidebar.classList.add("chat-stop");
+    sidebar.style.top = `${Math.max(stopTop, navbarPx)}px`;
+  } else {
+    sidebar.classList.remove("chat-stop");
+    sidebar.style.top = "";
+  }
+}
+
+function scheduleChatSidebarStopUpdate() {
+  if (chatSidebarRaf) return;
+  chatSidebarRaf = requestAnimationFrame(() => {
+    chatSidebarRaf = null;
+    updateChatSidebarStop();
+  });
+}
+
 // -----------------------------
 // DOM creation
 // -----------------------------
@@ -138,7 +170,11 @@ function createChatSidebar() {
       // if sidebar collapses, also move panel flush right
       const panel = document.getElementById("chat-panel");
       if (panel) panel.classList.toggle("sidebar-collapsed");
+
+      scheduleChatSidebarStopUpdate();
     });
+
+    scheduleChatSidebarStopUpdate();
   }
   
 
@@ -711,5 +747,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     createChatSidebar();
     await loadThreads();
     connectWS();
+
+    window.addEventListener("scroll", scheduleChatSidebarStopUpdate, { passive: true });
+    window.addEventListener("resize", scheduleChatSidebarStopUpdate);
+    scheduleChatSidebarStopUpdate();
   });
   

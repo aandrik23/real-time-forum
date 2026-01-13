@@ -574,7 +574,6 @@ html.dark-mode .logout-btn:focus {
     flex: 0 0 auto;
     width: 100%;
     max-width: 520px;
-    
 }
 .footer-col p {
     margin: 0 0 0.75rem;
@@ -668,6 +667,9 @@ body[data-show-login="1"] .sidebar,
 body[data-show-login="1"] #sidebar-toggle {
   display: none !important;
 }
+body[data-show-login="1"] .nav-profile-btn {
+  display: none !important;
+}
 
 .sidebar-toggle {
     position: fixed;
@@ -700,7 +702,7 @@ body[data-show-login="1"] #sidebar-toggle {
 }
 
 .container.content {
-    margin-left: 90px;
+    margin-left: 0;
     margin-top: 64px;
     transition: margin-left 0.3s ease;
 }
@@ -2280,7 +2282,7 @@ body[data-show-login="0"] #logoutBtn {
   #chat-sidebar {
     position: fixed;
     top: var(--navbar-h);
-    right: 13px;
+    right: 0px;
   
     width: var(--chat-sidebar-w);
     height: calc(100vh - var(--navbar-h));
@@ -2423,7 +2425,7 @@ body[data-show-login="0"] #logoutBtn {
     position: fixed;
   
     right: var(--chat-sidebar-w);   /* sits left of chat sidebar */
-    bottom: 16px;
+    bottom: 0px;
   
     width: 360px;
     height: 480px;

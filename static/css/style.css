@@ -574,7 +574,6 @@ html.dark-mode .logout-btn:focus {
     flex: 0 0 auto;
     width: 100%;
     max-width: 520px;
-    
 }
 .footer-col p {
     margin: 0 0 0.75rem;
@@ -2283,7 +2282,7 @@ body[data-show-login="0"] #logoutBtn {
   #chat-sidebar {
     position: fixed;
     top: var(--navbar-h);
-    right: 13px;
+    right: 0px;
   
     width: var(--chat-sidebar-w);
     height: calc(100vh - var(--navbar-h));
@@ -2426,7 +2425,7 @@ body[data-show-login="0"] #logoutBtn {
     position: fixed;
   
     right: var(--chat-sidebar-w);   /* sits left of chat sidebar */
-    bottom: 16px;
+    bottom: 0px;
   
     width: 360px;
     height: 480px;
