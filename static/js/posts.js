@@ -75,6 +75,8 @@ export function initPostPreviewModal() {
   const modal = document.getElementById('postPreviewModal');
   if (!modal) return; // not on profile page / modal not rendered
 
+
+
   const titleEl = document.getElementById('previewTitle');
   const contentEl = document.getElementById('previewContent');
   const dateEl = document.getElementById('previewDate');
@@ -92,6 +94,10 @@ export function initPostPreviewModal() {
   if (!titleEl || !contentEl || !dateEl || !likeBtn || !dislikeBtn || !commentBtn || !commentsSection || !commentsList || !commentForm || !loadMoreBtn || links.length === 0) {
     return;
   }
+  commentBtn.addEventListener('click', () => {
+    commentsSection.classList.toggle('hidden');
+    commentsSection.classList.toggle('show');
+  });
 
   links.forEach(link => {
     link.addEventListener('click', e => {
@@ -140,24 +146,30 @@ export function initPostPreviewModal() {
       authFetch(`/api/posts/comments?post_id=${postId}&limit=5&offset=0`)
         .then(res => res.json())
         .then(commentList => {
+          commentsList.innerHTML = ''; // Clear previous comments
+
           commentList.forEach(c => {
             const commentEl = document.createElement('div');
             commentEl.classList.add('comment');
             commentEl.innerHTML = `
-            <p><strong>${escapeHtml(c.Author)}</strong>: ${escapeHtml(c.Content)}</p>
-            <p class="meta">${formatGoDate(c.CreatedAt)}</p>
-              <div class="actions">
-                <button data-post-id="${c.ID}" data-target-type="comment" class="like-btn" data-clicked="false">
-                    <span class="count">${c.Likes ?? 0}</span>
-                </button>
-                <button data-post-id="${c.ID}" data-target-type="comment" class="dislike-btn" data-clicked="false">
-                    <span class="count">${c.Dislikes ?? 0}</span>
-                </button>
-              </div>
-            `;
+      <p><strong>${escapeHtml(c.Author)}</strong>: ${escapeHtml(c.Content)}</p>
+      <p class="meta">${formatGoDate(c.CreatedAt)}</p>
+        <div class="actions">
+          <button data-post-id="${c.ID}" data-target-type="comment" class="like-btn" data-clicked="false">
+              <span class="count">${c.Likes ?? 0}</span>
+          </button>
+          <button data-post-id="${c.ID}" data-target-type="comment" class="dislike-btn" data-clicked="false">
+              <span class="count">${c.Dislikes ?? 0}</span>
+          </button>
+        </div>
+      `;
             commentsList.appendChild(commentEl);
           });
-          commentsSection.classList.remove('hidden');
+
+          // Keep it hidden initially - user can toggle with button
+          commentsSection.classList.add('hidden');
+          commentsSection.classList.remove('show');
+
           loadMoreBtn.dataset.offset = String(commentList.length);
           loadMoreBtn.classList.toggle('hidden', comments <= commentList.length);
           initLikeButtons(); // rebind likes for comments
