@@ -1,6 +1,6 @@
 import { initLikeButtons } from "./comments.js";
 import { openModal, closeModal, getCookie, isAnonymous } from "./utils.js";
-import { escapeHtml } from "./render/renderUtils.js";
+import { escapeHtml, renderBadges } from "./render/renderUtils.js";
 import { navigate } from "./router.js"
 import { authFetch } from "./auth.js";
 
@@ -75,15 +75,15 @@ export function initPostPreviewModal() {
   const modal = document.getElementById('postPreviewModal');
   if (!modal) return; // not on profile page / modal not rendered
 
-  const titleEl      = document.getElementById('previewTitle');
-  const contentEl    = document.getElementById('previewContent');
-  const dateEl       = document.getElementById('previewDate');
-  const likeBtn      = modal.querySelector('.like-btn');
-  const dislikeBtn   = modal.querySelector('.dislike-btn');
-  const commentBtn   = modal.querySelector('.comment-toggle-btn');
+  const titleEl = document.getElementById('previewTitle');
+  const contentEl = document.getElementById('previewContent');
+  const dateEl = document.getElementById('previewDate');
+  const likeBtn = modal.querySelector('.like-btn');
+  const dislikeBtn = modal.querySelector('.dislike-btn');
+  const commentBtn = modal.querySelector('.comment-toggle-btn');
   const commentsSection = document.getElementById('previewCommentsSection');
-  const commentsList    = document.getElementById('previewCommentsList');
-  const commentForm     = document.getElementById('previewCommentForm');
+  const commentsList = document.getElementById('previewCommentsList');
+  const commentForm = document.getElementById('previewCommentForm');
 
   const links = document.querySelectorAll('.profile-post-title');
 
@@ -96,11 +96,17 @@ export function initPostPreviewModal() {
     link.addEventListener('click', e => {
       e.preventDefault();
 
-      const postId   = link.dataset.id;
-      const title    = link.dataset.title;
-      const content  = link.dataset.content;
-      const date     = link.dataset.date;
-      const likes    = link.dataset.likes || 0;
+      const categories = JSON.parse(link.dataset.categories || "[]");
+      const categoriesEl = document.getElementById("previewCategories");
+      if (categoriesEl) {
+        categoriesEl.innerHTML = renderBadges(categories);
+      }
+
+      const postId = link.dataset.id;
+      const title = link.dataset.title;
+      const content = link.dataset.content;
+      const date = link.dataset.date;
+      const likes = link.dataset.likes || 0;
       const dislikes = link.dataset.dislikes || 0;
       const comments = link.dataset.comments || 0;
 
@@ -171,11 +177,11 @@ export function initPostPreviewModal() {
 }
 
 export function initProfilePostsButton() {
-    const postsBtn = document.querySelector(".user-posts-link");
-    if (postsBtn) {
-      postsBtn.addEventListener("click", () => {
-        navigate("/home?filter=created");
-      });
-    }
+  const postsBtn = document.querySelector(".user-posts-link");
+  if (postsBtn) {
+    postsBtn.addEventListener("click", () => {
+      navigate("/home?filter=created");
+    });
   }
+}
 

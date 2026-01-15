@@ -1,7 +1,7 @@
 import { openModal, closeModal, AVATAR_SEEDS, isAnonymous, getCookie } from "./utils.js";
 import { navigate } from "./router.js";
 import { authFetch } from "./auth.js";
-import { renderBadges } from "./render/renderUtils.js";
+
 
 // Profile modal
 export function initProfileModal() {
@@ -203,30 +203,3 @@ export function initProfilePostsRedirect() {
   });
 }
 
-// ------------------ PROFILE POST PREVIEW ------------------
-
-export function initProfilePostPreview() {
-  document.addEventListener("click", (e) => {
-    const link = e.target.closest(".profile-post-title");
-    if (!link) return;
-
-    e.preventDefault();
-
-    const categories = JSON.parse(link.dataset.categories || "[]");
-
-    const categoriesEl = document.getElementById("previewCategories");
-    if (categoriesEl) {
-      categoriesEl.innerHTML = renderBadges(categories);
-    }
-
-    const titleEl = document.getElementById("previewTitle");
-    const contentEl = document.getElementById("previewContent");
-    const dateEl = document.getElementById("previewDate");
-
-    if (titleEl) titleEl.textContent = link.dataset.title || "";
-    if (contentEl) contentEl.textContent = link.dataset.content || "";
-    if (dateEl) dateEl.textContent = link.dataset.date || "";
-
-    openModal(document.getElementById("postPreviewModal"));
-  });
-}

@@ -1,6 +1,6 @@
 import { initLoginForm, initRegisterForm, initAuthModals, initLogout } from "./auth.js";
 import { initPageContent, loadPage } from "./loadPage.js";
-import { initProfileDislikesRedirect, initProfileLikesRedirect, initProfilePostsRedirect, initProfilePostPreview } from "./profile.js";
+import { initProfileDislikesRedirect, initProfileLikesRedirect, initProfilePostsRedirect } from "./profile.js";
 import { initNavLinks, initThemeToggle } from "./navigation.js";
 import { initLinkInterceptor } from "./router.js";
 import { fillCsrfInputs, openModal } from "./utils.js";
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     section.classList.toggle("show");
   });
 
-  initProfilePostPreview();
+
   initLikeButtons();
   initCommentForm();
   initNavLinks();
