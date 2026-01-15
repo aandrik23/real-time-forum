@@ -233,8 +233,11 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
-    padding: 0 2rem;
+    padding: 0 1rem;
     height: 64px;
+    /* justify-content: space-between; */
+    max-width: 100%;
+    width: 100%;
 }
 
 /* Nav sections */
@@ -249,8 +252,8 @@ h1, h2, h3, h4, h5, h6 {
     gap: 1rem;
 }
 .nav-center {
-    margin-left: auto;
-    margin-right: 2rem;
+    margin: 0 auto;
+
 }
 
 /* Main layout */
@@ -1119,6 +1122,7 @@ html.dark-mode button.clickable-stat:hover, button.clickable-stat:focus {
 
 .profile-activity {
     margin-top: 2rem;
+    padding: 0 2rem;
 }
 .profile-activity h3 {
     font-size: 1.25rem;
@@ -1215,7 +1219,7 @@ html.dark-mode .profile-email:hover{
 }
 html.dark-mode .profile-email,
 html.dark-mode .profile-post-date {
-    color: var(--bg);
+    color: #627a50;
 }
 html.dark-mode .profile-stats span {
     background: var(--color-accent-light);
@@ -1443,6 +1447,7 @@ html.dark-mode .profile-edit-btn {
     font-weight: 800;
     margin-bottom: 3rem;
     color: var(--color-accent-dark);
+    padding: 0 2rem;
 }
 
 .filter-bar {
@@ -1451,6 +1456,7 @@ html.dark-mode .profile-edit-btn {
     gap: 0.75rem;
     align-items: center;
     margin-bottom: 1.5rem;
+    padding: 0 2rem;
 }
 
 .filter-bar button ,
@@ -2434,7 +2440,8 @@ body[data-show-login="0"] #logoutBtn {
     background: color-mix(in srgb, var(--bg) 92%, black);
     color: var(--fg);
     border: 1px solid var(--secondary);
-    border-radius: 12px;
+    border-radius: 0px;
+    
   
     display: flex;
     flex-direction: column;
@@ -2483,6 +2490,9 @@ body[data-show-login="0"] #logoutBtn {
     background: var(--color-accent-dark);
     color: var(--color-text-dark);
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   
   /* messages area */

@@ -18,12 +18,15 @@
     <!-- Navbar -->
     <header class="navbar">
         <div class="navbar-inner container">
-            <!-- LEFT: Logo + Home icon + Grid icon + New-post icon -->
+            <!-- LEFT: Logo -->
             <div class="nav-left">
                 <a href="/" class="logo">
                     <img src="/static/img/logo.png" alt="Forum Logo" class="logo-img">
                     <span class="logo-text">Speak Easy</span>
                 </a>
+            </div>
+            <!-- Center: Home, Categories & New Post -->
+            <div class="nav-center">
                 <a href="/" class="icon-btn home-btn" aria-label="Home" role="button"></a>
                 <div class="dropdown nav-categories">
                     <button class="icon-btn categories-btn" id="categoriesDropdownBtn" aria-haspopup="true"
@@ -37,26 +40,21 @@
                 <button class="icon-btn newpost-btn" aria-label="New Post"></button>
             </div>
 
-            <!-- CENTER: Search, Notifications & Dark-mode toggle -->
-            <div class="nav-center">
-                <!-- Notification Button -->
-                <button id="notif-btn" aria-label="Notifications">
-                    Notifications <span id="notif-badge">0</span>
+            <!-- Right: Notifications, Theme Toggle, Profile, Login/Register/Logout -->
+            <!-- RIGHT: Notifications, Theme, Profile, Login/Register/Logout -->
+            <div class="nav-right">
+                <button class="icon-btn notif-btn" aria-label="Notifications">
+                    <span class="badge">0</span>
                 </button>
-                <label class="switch">
-                    <input type="checkbox" id="theme-toggle">
-                    <span class="slider"></span>
-                </label>
-                <!-- Notification Dropdown -->
                 <div id="notif-dropdown" style="display: none;">
                     <ul id="notif-list">
                         <!-- Notifications will be appended here -->
                     </ul>
                 </div>
-            </div>
-
-            <!-- RIGHT: Log in / Register -->
-            <div class="nav-right">
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
                 <a href="/profile" class="icon-btn profile-btn nav-profile-btn" aria-label="Profile" role="button"></a>
                 <button id="loginBtn" class="btn pill login-btn">LOG IN</button>
                 <button id="registerBtn" class="btn pill register-btn">REGISTER</button>
