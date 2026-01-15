@@ -4,7 +4,7 @@ import { initProfileDislikesRedirect, initProfileLikesRedirect, initProfilePosts
 import { initNavLinks, initThemeToggle } from "./navigation.js";
 import { initLinkInterceptor } from "./router.js";
 import { fillCsrfInputs, openModal } from "./utils.js";
-import { initCommentForm, initLikeButtons } from "./comments.js";
+import { initCommentForm, initLikeButtons, initLoadMoreComments } from "./comments.js";
 import { setAuthState } from "./auth.js";
 import { onAppReset } from "./appReset.js";
 
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initLikeButtons();
   initCommentForm();
+  initLoadMoreComments();
   initNavLinks();
   initProfilePostsRedirect();
   initProfileLikesRedirect();

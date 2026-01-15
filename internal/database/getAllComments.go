@@ -4,7 +4,7 @@ import (
 	"forum/internal/models"
 )
 
-func GetCommentsForPost(postID int) ([]models.Comments, error) {
+func GetCommentsForPostPaged(postID, limit, offset int) ([]models.Comments, error) {
 	rows, err := DB.Query(`
 		SELECT 
 			c.id, c.user_id, u.username, c.content, c.created_at,
@@ -15,8 +15,8 @@ func GetCommentsForPost(postID int) ([]models.Comments, error) {
 		LEFT JOIN likes l ON l.target_type = 'comment' AND l.target_id = c.id
 		WHERE c.post_id = ?
 		GROUP BY c.id
-		ORDER BY c.created_at ASC
-	`, postID)
+		ORDER BY c.created_at DESC
+		LIMIT ? OFFSET ?`, postID, limit, offset)
 	if err != nil {
 		return nil, err
 	}

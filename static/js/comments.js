@@ -86,6 +86,66 @@ export function initCommentForm() {
   });
 }
 
+export function initLoadMoreComments() {
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".load-more-comments");
+    if (!btn) return;
+    const postId = Number(btn.dataset.postId);
+    const offset = Number(btn.dataset.offset) || 0;
+    const limit = 5;
+
+    const listId = btn.dataset.listId;
+    const list = listId
+      ? document.getElementById(listId)
+      : document.getElementById(`comments-list-${postId}`);
+    if (!list) return;
+
+    const res = await authFetch(`/api/posts/comments?post_id=${postId}&limit=${limit}&offset=${offset}`);
+    if (!res.ok) return;
+    
+    const comments = await res.json();
+    if (!comments.length) {
+      btn.remove();
+      return;
+    }
+
+    comments.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.innerHTML = `
+        <p>
+          <strong>${escapeHtml(c.Author)}</strong>:
+          ${escapeHtml(c.Content)}
+        </p>
+        <p class="meta">${(formatGoDate(c.CreatedAt))}</p>
+        <div class="actions">
+          <button data-post-id="${c.ID}"
+                  data-target-type="comment"
+                  class="like-btn"
+                  data-clicked="false">
+            <span class="count">${c.Likes ?? 0}</span>
+          </button>
+          <button data-post-id="${c.ID}"
+                  data-target-type="comment"
+                  class="dislike-btn"
+                  data-clicked="false">
+            <span class="count">${c.Dislikes ?? 0}</span>
+          </button>
+        </div>
+        `;
+        list.appendChild(div);
+    });
+    btn.dataset.offset = String(offset + comments.length);
+
+    // If fewer comments than limit were returned, remove the button
+    const total = Number(btn.dataset.total || 0);
+    if (comments.length < limit || (total && (offset + comments.length) >= total)) {
+      btn.remove();
+    }
+  });
+}
+
+
 
 
 let reactionsBound = false;

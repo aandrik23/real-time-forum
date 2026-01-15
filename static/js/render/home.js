@@ -84,6 +84,8 @@ function renderPostsSection(data) {
 function renderPostCard(p, isUser, username) {
   const canDelete = isUser && p.Author === username;
   const comments = Array.isArray(p.Comments) ? p.Comments : [];
+  const totalComments = p.NumComments ?? comments.length;
+  const showLoadMore = totalComments > comments.length;
 
   const commentsHtml = comments.length
     ? comments.map(renderComment).join("")
@@ -117,6 +119,11 @@ function renderPostCard(p, isUser, username) {
         <div class="comments-list" id="comments-list-${p.ID}">
           ${commentsHtml}
         </div>
+        ${showLoadMore ? `
+          <button class="btn load-more-comments" data-post-id="${p.ID}" data-offset="${comments.length}" data-total="${totalComments}">
+            Load more comments
+          </button>
+        ` : ""}
 
         <form class="comment-form" data-post-id="${p.ID}">
           <textarea placeholder="Write a comment." required></textarea>

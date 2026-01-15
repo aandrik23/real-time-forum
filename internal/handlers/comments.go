@@ -1,16 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	authutils "forum/internal/authUtils"
 	"forum/internal/database"
 	"forum/internal/realtime"
 	"net/http"
 	"strconv"
 	"time"
-	"fmt"
-	"context"
-
 )
 
 type CreateCommentResp struct {
@@ -56,35 +55,31 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-    postAuthorID, err := database.GetPostAuthorID(comment.PostID)
-    if err != nil || postAuthorID == 0 || postAuthorID == payload.UserID {
-        return
-    }
+		postAuthorID, err := database.GetPostAuthorID(comment.PostID)
+		if err != nil || postAuthorID == 0 || postAuthorID == payload.UserID {
+			return
+		}
 
-    NotificationSvc := &NotificationService{
-        DB:  database.DB,
-        Hub: realtime.Notif,
-    }
+		NotificationSvc := &NotificationService{
+			DB:  database.DB,
+			Hub: realtime.Notif,
+		}
 
-    // Use a new background context instead of r.Context()
-    if err := NotificationSvc.CreateNotification(
-        context.Background(),  // <-- separate context
-        int64(postAuthorID),
-        int64(payload.UserID),
-        "comment",
-        int64(comment.PostID),
-        map[string]interface{}{
-            "message":    payload.Username + " commented on your post",
-            "comment_id": c.ID,
-        },
-    ); err != nil {
-        fmt.Println("Failed to create notification:", err)
-    }
-}()
-
-
-
-
+		// Use a new background context instead of r.Context()
+		if err := NotificationSvc.CreateNotification(
+			context.Background(), // <-- separate context
+			int64(postAuthorID),
+			int64(payload.UserID),
+			"comment",
+			int64(comment.PostID),
+			map[string]interface{}{
+				"message":    payload.Username + " commented on your post",
+				"comment_id": c.ID,
+			},
+		); err != nil {
+			fmt.Println("Failed to create notification:", err)
+		}
+	}()
 
 	resp := CreateCommentResp{
 		ID:        c.ID,
@@ -94,13 +89,12 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 		Likes:     0,
 		Dislikes:  0,
 	}
-	
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(resp)
 }
 
-// GET /api/posts/comments?post_id=123
+// GET /api/posts/comments?post_id=123&limit=5&offset=0
 func CommentsGetHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -114,7 +108,17 @@ func CommentsGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comments, err := database.GetCommentsForPost(postID)
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	if limit <= 0 || limit > 50 {
+		limit = 5
+	}
+
+	if offset < 0 {
+		offset = 0
+	}
+
+	comments, err := database.GetCommentsForPostPaged(postID, limit, offset)
 	if err != nil {
 		http.Error(w, "Failed to load comments", http.StatusInternalServerError)
 		return

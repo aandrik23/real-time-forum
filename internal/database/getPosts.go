@@ -46,7 +46,7 @@ func GetPostByID(postID int) (models.Post, error) {
 	}
 
 	// comments
-	comments, err := GetCommentsForPost(post.ID)
+	comments, err := GetCommentsForPostPaged(post.ID, 5, 0) // Example: first 5 comments
 	if err != nil {
 		return models.Post{}, err
 	}
@@ -100,7 +100,7 @@ func GetPostsByAuthorID(authorID int) ([]models.Post, error) {
 		post.Dislikes = dislikes
 
 		// Load comments for the post
-		comments, err := GetCommentsForPost(post.ID)
+		comments, err := GetCommentsForPostPaged(post.ID, 5, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +175,7 @@ SELECT p.id, p.user_id, p.title, p.content, p.created_at, u.username
 		post.Dislikes = dislikes
 
 		// Load comments for the post
-		comments, err := GetCommentsForPost(post.ID)
+		comments, err := GetCommentsForPostPaged(post.ID, 5, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -265,7 +265,7 @@ func GetAllPosts() ([]models.Post, error) {
 		} else {
 			post.Snippet = post.Content
 		}
-		post.Comments, err = GetCommentsForPost(post.ID)
+		post.Comments, err = GetCommentsForPostPaged(post.ID, 5, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -297,7 +297,7 @@ func GetPostsByCategoryID(categoryID int) ([]models.Post, error) {
 		}
 		// Optionally load categories, likes, comments...
 		post.Categories, _ = GetCategoriesByPostID(post.ID)
-		post.Comments, _ = GetCommentsForPost(post.ID)
+		post.Comments, _ = GetCommentsForPostPaged(post.ID, 5, 0)
 		// Load reaction stats (likes/dislikes)
 		likes, dislikes, _, err := GetReactionStatsAndUserReaction(post.AuthorID, "post", post.ID)
 		if err != nil {

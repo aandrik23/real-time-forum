@@ -2056,6 +2056,29 @@ html.dark-mode .comment-form button:hover {
     background-color: var(--primary);
 }
 
+.load-more-comments {
+    align-self: center;
+    margin: 1rem 0 ;
+    padding: 0.5rem 1.2rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.load-more-comments:hover {
+    background: var(--primary);
+    transform: scale(1.05);
+}
+html.dark-mode .load-more-comments {
+    background: var(--color-accent-light);
+    color: var(--bg);
+}
+html.dark-mode .load-more-comments:hover {
+    background: var(--accent);
+}
 
 /* === Dark Mode === */
 

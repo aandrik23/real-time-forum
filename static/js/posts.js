@@ -1,6 +1,6 @@
 import { initLikeButtons } from "./comments.js";
 import { openModal, closeModal, getCookie, isAnonymous } from "./utils.js";
-import { escapeHtml, renderBadges } from "./render/renderUtils.js";
+import { escapeHtml, renderBadges, formatGoDate } from "./render/renderUtils.js";
 import { navigate } from "./router.js"
 import { authFetch } from "./auth.js";
 
@@ -84,11 +84,12 @@ export function initPostPreviewModal() {
   const commentsSection = document.getElementById('previewCommentsSection');
   const commentsList = document.getElementById('previewCommentsList');
   const commentForm = document.getElementById('previewCommentForm');
+  const loadMoreBtn = document.querySelector('.load-more-comments[data-list-id="previewCommentsList"]');
 
   const links = document.querySelectorAll('.profile-post-title');
 
   // if any critical element is missing, just bail
-  if (!titleEl || !contentEl || !dateEl || !likeBtn || !dislikeBtn || !commentBtn || !commentsSection || !commentsList || !commentForm || links.length === 0) {
+  if (!titleEl || !contentEl || !dateEl || !likeBtn || !dislikeBtn || !commentBtn || !commentsSection || !commentsList || !commentForm || !loadMoreBtn || links.length === 0) {
     return;
   }
 
@@ -108,7 +109,7 @@ export function initPostPreviewModal() {
       const date = link.dataset.date;
       const likes = link.dataset.likes || 0;
       const dislikes = link.dataset.dislikes || 0;
-      const comments = link.dataset.comments || 0;
+      const comments = Number(link.dataset.comments || 0);
 
       // Fill modal
       titleEl.textContent = title;
@@ -131,29 +132,34 @@ export function initPostPreviewModal() {
       // Reset section
       commentsList.innerHTML = '';
       commentForm.dataset.postId = postId;
+      loadMoreBtn.dataset.postId = postId;
+      loadMoreBtn.dataset.offset = "0";
+      loadMoreBtn.dataset.total = String(comments);
 
       // Load comments dynamically
-      authFetch(`/api/posts/comments?post_id=${postId}`)
+      authFetch(`/api/posts/comments?post_id=${postId}&limit=5&offset=0`)
         .then(res => res.json())
-        .then(comments => {
-          comments.forEach(c => {
+        .then(commentList => {
+          commentList.forEach(c => {
             const commentEl = document.createElement('div');
             commentEl.classList.add('comment');
             commentEl.innerHTML = `
             <p><strong>${escapeHtml(c.Author)}</strong>: ${escapeHtml(c.Content)}</p>
-            <p class="meta">${c.created_at}</p>
+            <p class="meta">${formatGoDate(c.CreatedAt)}</p>
               <div class="actions">
-                <button data-post-id="${c.id}" data-target-type="comment" class="like-btn" data-clicked="false">
-                    <span class="count">${c.likes}</span>
+                <button data-post-id="${c.ID}" data-target-type="comment" class="like-btn" data-clicked="false">
+                    <span class="count">${c.Likes ?? 0}</span>
                 </button>
-                <button data-post-id="${c.id}" data-target-type="comment" class="dislike-btn" data-clicked="false">
-                    <span class="count">${c.dislikes}</span>
+                <button data-post-id="${c.ID}" data-target-type="comment" class="dislike-btn" data-clicked="false">
+                    <span class="count">${c.Dislikes ?? 0}</span>
                 </button>
               </div>
             `;
             commentsList.appendChild(commentEl);
           });
           commentsSection.classList.remove('hidden');
+          loadMoreBtn.dataset.offset = String(commentList.length);
+          loadMoreBtn.classList.toggle('hidden', comments <= commentList.length);
           initLikeButtons(); // rebind likes for comments
         })
         .catch(err => {
@@ -184,4 +190,3 @@ export function initProfilePostsButton() {
     });
   }
 }
-
