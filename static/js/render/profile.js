@@ -6,23 +6,23 @@ import { escapeHtml, formatGoDate, renderBadges } from "./renderUtils.js";
    ========================= */
 
 export function renderProfileFromJSON(data) {
-    return `
+  return `
       ${renderProfileHeader(data)}
       ${renderProfileActivity(data)}
       ${renderProfileModals(data)}
     `;
-  }
+}
 
 /* =========================
    PRIVATE HELPERS
    ========================= */
 function renderProfileHeader(data) {
-    const username = data.username || "";
-    const bio = data.bio || "";
-    const avatar = data.avatar || "default";
-    const stats = data.stats || {};
-  
-    return `
+  const username = data.username || "";
+  const bio = data.bio || "";
+  const avatar = data.avatar || "default";
+  const stats = data.stats || {};
+
+  return `
       <div class="profile-page container">
         <div class="profile-header">
           <div class="profile-avatar">
@@ -53,16 +53,16 @@ function renderProfileHeader(data) {
         </div>
       </div>
     `;
-  }
-  
+}
+
 function renderProfileActivity(data) {
-    const posts = Array.isArray(data.posts) ? data.posts : [];
-  
-    const postsHtml = posts.length
-      ? posts.map(renderProfilePostItem).join("")
-      : `<li><em>No recent posts yet.</em></li>`;
-  
-    return `
+  const posts = Array.isArray(data.posts) ? data.posts : [];
+
+  const postsHtml = posts.length
+    ? posts.map(renderProfilePostItem).join("")
+    : `<li><em>No recent posts yet.</em></li>`;
+
+  return `
       <div class="profile-activity">
         <h3>Recent Posts</h3>
         <ul class="profile-post-list">
@@ -70,42 +70,46 @@ function renderProfileActivity(data) {
         </ul>
       </div>
     `;
-  }
-  
+}
+
 function renderProfilePostItem(p) {
-    return `
-      <li>
-        <a href="#"
-           class="profile-post-title"
-           data-id="${p.ID}"
-           data-title="${escapeHtml(p.Title || "")}"
-           data-content="${escapeHtml(p.Content || "")}"
-           data-date="${escapeHtml(formatGoDate(p.CreatedAt))}"
-           data-likes="${p.Likes ?? 0}"
-           data-dislikes="${p.Dislikes ?? 0}"
-           data-comments="${p.NumComments ?? 0}">
-          ${escapeHtml(p.Title || "")}
-        </a>
-        <span class="profile-post-date">
-          ${escapeHtml(formatGoDate(p.CreatedAt))}
-        </span>
-      </li>
-    `;
-  }
-  
+  return `
+    <li>
+      <a href="#"
+         class="profile-post-title"
+         data-id="${p.ID}"
+         data-title="${escapeHtml(p.Title || "")}"
+         data-content="${escapeHtml(p.Content || "")}"
+         data-date="${escapeHtml(formatGoDate(p.CreatedAt))}"
+         data-likes="${p.Likes ?? 0}"
+         data-dislikes="${p.Dislikes ?? 0}"
+         data-comments="${p.NumComments ?? 0}"
+         data-categories='${JSON.stringify(p.Categories || [])}'>
+        ${escapeHtml(p.Title || "")}
+      </a>
+      <span class="profile-post-date">
+        ${escapeHtml(formatGoDate(p.CreatedAt))}
+      </span>
+    </li>
+  `;
+}
+
+
 function renderProfileModals(data) {
-    const categories = Array.isArray(data.categories) ? data.categories : [];
-    const previewCats = renderBadges(categories);
-  
-    return `
+  const categories = Array.isArray(data.categories) ? data.categories : [];
+  const previewCats = renderBadges(categories);
+
+  return `
       ${renderEditProfileModal()}
       ${renderAvatarSelectModal()}
-      ${renderPostPreviewModal(previewCats)}
+      ${renderPostPreviewModal()}
+
     `;
-  }
-  
+}
+
+
 function renderEditProfileModal() {
-    return `
+  return `
       <div id="editProfileModal" class="modal-overlay">
         <div class="modal-card">
           <button class="modal-close" data-modal-close>&times;</button>
@@ -135,10 +139,10 @@ function renderEditProfileModal() {
         </div>
       </div>
     `;
-  }
-  
+}
+
 function renderAvatarSelectModal() {
-    return `
+  return `
       <div id="avatarSelectModal" class="modal-overlay">
         <div class="modal-card avatar-picker-card">
           <button class="modal-close" data-modal-close>&times;</button>
@@ -147,48 +151,46 @@ function renderAvatarSelectModal() {
         </div>
       </div>
     `;
-  }
-  
-function renderPostPreviewModal(previewCats) {
-    return `
-      <div id="postPreviewModal" class="modal-overlay">
-        <div class="modal-card post-card" id="modal-post-card">
-          <button class="modal-close" data-modal-close>&times;</button>
-  
-          <div class="post-header">
-            <h2><a id="previewTitle" href="#"></a></h2>
-            <p class="meta" id="previewDate"></p>
-          </div>
-  
-          <div class="badges">
-            ${previewCats}
-          </div>
-  
-          <div class="snippet" id="previewContent" style="white-space: pre-wrap;"></div>
-  
-          <div class="actions">
-            <div class="reaction-group">
-              <button class="like-btn" data-clicked="false">
-                <span class="count" id="previewLikes">0</span>
-              </button>
-              <button class="dislike-btn" data-clicked="false">
-                <span class="count" id="previewDislikes">0</span>
-              </button>
-              <button class="comment-toggle-btn">
-                <span class="count" id="previewComments">0</span>
-              </button>
-            </div>
-          </div>
-  
-          <div class="comments-section hidden" id="previewCommentsSection">
-            <div class="comments-list" id="previewCommentsList"></div>
-  
-            <form class="comment-form" id="previewCommentForm" data-post-id="">
-              <textarea placeholder="Write a comment..." required></textarea>
-              <button type="submit">Post</button>
-            </form>
+}
+
+function renderPostPreviewModal() {
+  return `
+    <div id="postPreviewModal" class="modal-overlay">
+      <div class="modal-card post-card" id="modal-post-card">
+        <button class="modal-close" data-modal-close>&times;</button>
+
+        <div class="post-header">
+          <h2><a id="previewTitle" href="#"></a></h2>
+          <p class="meta" id="previewDate"></p>
+        </div>
+
+        <div class="badges" id="previewCategories"></div>
+
+        <div class="snippet" id="previewContent" style="white-space: pre-wrap;"></div>
+
+        <div class="actions">
+          <div class="reaction-group">
+            <button class="like-btn" data-clicked="false">
+              <span class="count" id="previewLikes">0</span>
+            </button>
+            <button class="dislike-btn" data-clicked="false">
+              <span class="count" id="previewDislikes">0</span>
+            </button>
+            <button class="comment-toggle-btn">
+              <span class="count" id="previewComments">0</span>
+            </button>
           </div>
         </div>
+
+        <div class="comments-section hidden" id="previewCommentsSection">
+          <div class="comments-list" id="previewCommentsList"></div>
+
+          <form class="comment-form" id="previewCommentForm" data-post-id="">
+            <textarea placeholder="Write a comment..." required></textarea>
+            <button type="submit">Post</button>
+          </form>
+        </div>
       </div>
-    `;
-  }
+    </div>
+  `;
+}

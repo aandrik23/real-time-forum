@@ -1,6 +1,6 @@
-import {initLoginForm, initRegisterForm, initAuthModals, initLogout} from "./auth.js";
+import { initLoginForm, initRegisterForm, initAuthModals, initLogout } from "./auth.js";
 import { initPageContent, loadPage } from "./loadPage.js";
-import { initProfileDislikesRedirect, initProfileLikesRedirect, initProfilePostsRedirect } from "./profile.js";
+import { initProfileDislikesRedirect, initProfileLikesRedirect, initProfilePostsRedirect, initProfilePostPreview } from "./profile.js";
 import { initNavLinks, initThemeToggle } from "./navigation.js";
 import { initLinkInterceptor } from "./router.js";
 import { fillCsrfInputs, openModal } from "./utils.js";
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
       img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(savedSeed)}`;
     }
   }
-  
+
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".comment-toggle-btn");
     if (!btn) return;
@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     section.classList.toggle("hidden");
     section.classList.toggle("show");
   });
-  
+
+  initProfilePostPreview();
   initLikeButtons();
   initCommentForm();
   initNavLinks();
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPageContent(); // run once for initial content
   const initialPath = window.location.pathname + window.location.search;
   loadPage(initialPath);
-  
+
 });
 
 

@@ -1,17 +1,18 @@
 import { openModal, closeModal, AVATAR_SEEDS, isAnonymous, getCookie } from "./utils.js";
 import { navigate } from "./router.js";
 import { authFetch } from "./auth.js";
+import { renderBadges } from "./render/renderUtils.js";
 
 // Profile modal
 export function initProfileModal() {
   if (isAnonymous()) return;
 
-  const editBtn           = document.querySelector('.profile-edit-btn');
-  const editModal         = document.getElementById('editProfileModal');
+  const editBtn = document.querySelector('.profile-edit-btn');
+  const editModal = document.getElementById('editProfileModal');
   const avatarSelectModal = document.getElementById('avatarSelectModal');
-  const avatarPreview     = document.querySelector('.avatar-preview');
-  const avatarPreviewImg  = document.getElementById('avatarPreviewImg');
-  const avatarSeedInput   = document.getElementById('edit-avatarSeed');
+  const avatarPreview = document.querySelector('.avatar-preview');
+  const avatarPreviewImg = document.getElementById('avatarPreviewImg');
+  const avatarSeedInput = document.getElementById('edit-avatarSeed');
 
   // If we're not on the profile page, just bail out quietly
   if (!editBtn || !editModal || !avatarSelectModal || !avatarPreview || !avatarPreviewImg || !avatarSeedInput) {
@@ -27,16 +28,16 @@ export function initProfileModal() {
   editBtn.addEventListener('click', () => {
     // pull from header
     const currentName = document.querySelector('.profile-username').textContent.trim();
-    const currentBio  = document.querySelector('.profile-bio').textContent.trim();
-    const avatarEl    = document.querySelector('.profile-avatar img');
-    const avatarURL   = avatarEl.src;
-    const seed        = new URL(avatarURL).searchParams.get('seed') || '';
+    const currentBio = document.querySelector('.profile-bio').textContent.trim();
+    const avatarEl = document.querySelector('.profile-avatar img');
+    const avatarURL = avatarEl.src;
+    const seed = new URL(avatarURL).searchParams.get('seed') || '';
 
     // set form fields
     document.getElementById('edit-username').value = currentName;
-    document.getElementById('edit-bio').value      = currentBio;
-    avatarSeedInput.value                          = seed;
-    avatarPreviewImg.src                           = avatarURL;
+    document.getElementById('edit-bio').value = currentBio;
+    avatarSeedInput.value = seed;
+    avatarPreviewImg.src = avatarURL;
 
     openModal(editModal);
   });
@@ -57,9 +58,9 @@ export function initProfileModal() {
     avatarGrid.innerHTML = '';
     AVATAR_SEEDS.forEach(seed => {
       const img = document.createElement('img');
-      img.src          = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(seed)}`;
+      img.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(seed)}`;
       img.dataset.seed = seed;
-      img.className    = 'avatar-thumb';
+      img.className = 'avatar-thumb';
       if (seed === avatarSeedInput.value) img.classList.add('selected');
       avatarGrid.appendChild(img);
     });
@@ -79,7 +80,7 @@ export function initProfileModal() {
 
     // update hidden input + preview
     avatarSeedInput.value = thumb.dataset.seed;
-    avatarPreviewImg.src  = thumb.src;
+    avatarPreviewImg.src = thumb.src;
 
     // persist selection in localStorage
     localStorage.setItem('avatarSeed', thumb.dataset.seed);
@@ -99,14 +100,14 @@ export function initProfileModal() {
     .forEach(btn => btn.addEventListener('click', () => closeModal(avatarSelectModal)));
 
   // -------------------- SAVE CHANGES (SPA-style) --------------------
-    const form = document.getElementById('editProfileForm');
-    if (!form) return;
-    form.addEventListener('submit', async e => {
+  const form = document.getElementById('editProfileForm');
+  if (!form) return;
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     console.log("Submitting profile form...");
 
-    const name       = document.getElementById('edit-username').value.trim();
-    const bio        = document.getElementById('edit-bio').value.trim();
+    const name = document.getElementById('edit-username').value.trim();
+    const bio = document.getElementById('edit-bio').value.trim();
     const avatarSeed = document.getElementById('edit-avatarSeed').value.trim();
 
     try {
@@ -123,7 +124,7 @@ export function initProfileModal() {
 
       const errorEl = form.querySelector(".form-error");
       if (errorEl) errorEl.textContent = "";
-      
+
       if (!res.ok) {
         const payload = await res.json().catch(() => null);
         const msg = payload?.error || `Update failed (${res.status})`;
@@ -135,17 +136,17 @@ export function initProfileModal() {
       //  No full reload: update the page DOM directly
       const out = await res.json().catch(() => null);
       if (!out) return;
-      
+
       const usernameEl = document.querySelector('.profile-username');
-      const bioEl      = document.querySelector('.profile-bio');
-      const avatarEl   = document.querySelector('.profile-avatar img');
-      
+      const bioEl = document.querySelector('.profile-bio');
+      const avatarEl = document.querySelector('.profile-avatar img');
+
       if (usernameEl) usernameEl.textContent = ` ${out.username}`;
       if (bioEl) bioEl.textContent = out.bio || '';
       if (avatarEl) {
         avatarEl.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(out.avatarSeed || 'default')}`;
       }
-      
+
       closeModal(editModal);
 
     } catch (err) {
@@ -202,3 +203,30 @@ export function initProfilePostsRedirect() {
   });
 }
 
+// ------------------ PROFILE POST PREVIEW ------------------
+
+export function initProfilePostPreview() {
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest(".profile-post-title");
+    if (!link) return;
+
+    e.preventDefault();
+
+    const categories = JSON.parse(link.dataset.categories || "[]");
+
+    const categoriesEl = document.getElementById("previewCategories");
+    if (categoriesEl) {
+      categoriesEl.innerHTML = renderBadges(categories);
+    }
+
+    const titleEl = document.getElementById("previewTitle");
+    const contentEl = document.getElementById("previewContent");
+    const dateEl = document.getElementById("previewDate");
+
+    if (titleEl) titleEl.textContent = link.dataset.title || "";
+    if (contentEl) contentEl.textContent = link.dataset.content || "";
+    if (dateEl) dateEl.textContent = link.dataset.date || "";
+
+    openModal(document.getElementById("postPreviewModal"));
+  });
+}
