@@ -1,0 +1,79 @@
+Summary of Changes (Chat, Notifications, WebSockets)
+
+1. ws.js (NEW – shared WebSocket manager)
+
+    Introduced a central WebSocket manager used by the entire app.
+
+    Handles:
+
+    Creating WebSocket connections
+
+    Reconnection logic
+
+    Auth validation
+
+    Multiple logical channels (dm, notifications)
+
+    Each channel has:
+
+    One connection
+
+    Multiple subscribers (listeners)
+
+    This removes duplicated WebSocket logic from feature files.
+
+2. chat.js (Chat UI)
+
+    Chat no longer creates or manages its own WebSocket.
+
+    It now:
+
+    Connects through ws.js using the "dm" channel
+
+    Subscribes to messages via the manager
+
+    Chat logic (messages, read/delivered/sent states) was not changed.
+
+    Unread message badge logic remains local and safe.
+
+    Chat is now fully SPA-style and live without refresh.
+
+3. notifications.js (Notifications UI)
+
+    Notifications now use the same WebSocket system as chat.
+
+    They connect through ws.js using the "notifications" channel.
+
+    This gives:
+
+    Live notifications
+
+    Automatic reconnect
+
+    Clean reset on logout or app reset
+
+    Notification badge updates in real time without page reload.
+
+4. Important Connection Rule
+
+    A channel must be connected before subscribing:
+
+    wsManager.connect("dm", "/ws/dm");
+    wsManager.subscribe("dm", handler);
+
+
+    This prevents silent bugs and ensures predictable behavior.
+
+Result
+
+    Chat and notifications now:
+    
+    Share one WebSocket architecture
+    
+    Work live (SPA-style)
+    
+    Don’t duplicate logic
+    
+    Don’t break existing message behavior
+    
+    The system is easier to maintain and extend.

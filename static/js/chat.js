@@ -2,18 +2,34 @@ import { authFetch } from "./auth.js";
 import { onAppReset } from "./appReset.js";
 import { escapeHtml } from "./render/renderUtils.js";
 import { isAnonymous } from "./utils.js";
+import wsManager from "./ws.js";
 
+// -----------------------------
+// App reset
+// -----------------------------
 onAppReset(() => {
   resetChatState();
 });
+
+export function resetChatState() {
+  wsManager.resetAll();
+
+  threads = [];
+  suggestedUsers = [];
+  activeChatUser = null;
+  activeMessages = [];
+  paging = { oldestId: null, loading: false, exhausted: false };
+
+  pendingMessages.clear();
+  deliveryStatusMap.clear();
+  lastReadByUser.clear();
+
+  document.getElementById("chat-panel")?.remove();
+  document.getElementById("chat-sidebar")?.remove();
+}
 // -----------------------------
 // DM state
 // -----------------------------
-let ws = null;
-let reconnectTimer = null;
-let reconnectAttempt = 0;
-const MAX_RECONNECT_ATTEMPTS = 6; // ~30–60 seconds total
-let manualClose = false;
 
 let threads = [];              // left list: [{other_user_id, other_username, online, last_message_at, ...}]
 let suggestedUsers = [];       // only when threads empty: [{user_id, username, online, ...}]
@@ -27,9 +43,6 @@ let paging = {
 };
 
 const CURRENT_USER_ID = Number(document.body.dataset.userId);
-
-const RECONNECT_BASE_MS = 500;
-const RECONNECT_MAX_MS  = 10000;
 const pendingMessages = new Map(); // client_msg_id -> payload
 const deliveryStatusMap = new Map(); // messageID -> deliveredAt
 const lastReadByUser = new Map();
@@ -37,12 +50,6 @@ const lastReadByUser = new Map();
 // -----------------------------
 // Helpers
 // -----------------------------
-function wsURL(path) {
-  const proto = location.protocol === "https:" ? "wss:" : "ws:";
-  return `${proto}//${location.host}${path}`;
-}
-
-
 function toThreadUserListItems() {
   // If threads exist, they are the list. If none, use suggested users list.
   if (threads.length > 0) {
@@ -380,7 +387,6 @@ async function loadThreads() {
 
 function sendReadReceipt() {
   if (!activeChatUser || activeMessages.length === 0) return;
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   if (isChatPanelMinimized()) return;
 
   const lastMsg = activeMessages[activeMessages.length - 1];
@@ -388,11 +394,11 @@ function sendReadReceipt() {
   // DO NOT mark read if I sent the last message
   if (lastMsg.sender_id === CURRENT_USER_ID) return;
 
-  ws.send(JSON.stringify({
+  wsManager.send("dm", {
     type: "dm_read",
     conversation_with: activeChatUser.id,
     last_read_msg_id: lastMsg.id
-  }));
+  });
 }
 
 
@@ -582,117 +588,6 @@ function handleWsMessage(ev) {
   }
 }
 
-function connectWS() {
-  //  do not connect if logged out
-  if (isAnonymous()) return;
-  
-  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
-    return;
-  }
-
-  manualClose = false;
-
-  ws = new WebSocket(wsURL("/ws/dm"));
-
-  ws.addEventListener("open", () => {
-    reconnectAttempt = 0;
-    if (reconnectTimer) {
-      clearTimeout(reconnectTimer);
-      reconnectTimer = null;
-    }
-    for (const payload of pendingMessages.values()) {
-      ws.send(JSON.stringify(payload));
-    }
-
-    // server already sends:
-    // - presence (self)
-    // - presence_snapshot
-    // so nothing extra needed here
-  });
-
-  ws.addEventListener("message", (ev) => {
-    handleWsMessage(ev); // your existing router
-  });
-
-  ws.addEventListener("close", (e) => {
-    // 1008 = Policy Violation (logout / auth revoked)
-    if (e.code === 1008) return;
-  
-    if (!manualClose) {
-      scheduleReconnect();
-    }
-  });
-  
-
-  ws.addEventListener("error", () => {
-    // let close() drive reconnect
-  });
-}
-
-export function resetChatState() {
-  disconnectWS();
-
-  threads = [];
-  suggestedUsers = [];
-  activeChatUser = null;
-  activeMessages = [];
-  paging = { oldestId: null, loading: false, exhausted: false };
-
-  pendingMessages.clear();
-  deliveryStatusMap.clear();
-  lastReadByUser.clear();
-
-  document.getElementById("chat-panel")?.remove();
-  document.getElementById("chat-sidebar")?.remove();
-}
-
-function disconnectWS() {
-  manualClose = true;
-
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer);
-    reconnectTimer = null;
-  }
-
-  if (ws) {
-    ws.close();
-    ws = null;
-  }
-}
-
-function scheduleReconnect() {
-  if (reconnectTimer) return;
-  if (reconnectAttempt >= MAX_RECONNECT_ATTEMPTS) return;
-
-  const exp = Math.min(
-    RECONNECT_MAX_MS,
-    RECONNECT_BASE_MS * (2 ** reconnectAttempt++)
-  );
-
-  const jitter = exp * (Math.random() * 0.4 - 0.2);
-  const delay = Math.max(250, Math.floor(exp + jitter));
-
-  reconnectTimer = setTimeout(async () => {
-    reconnectTimer = null;
-  
-    try {
-      const res = await authFetch("/api/auth/ping", { method: "GET" });
-      if (!res.ok) throw new Error();
-      connectWS();
-    } catch {
-      console.warn("WS reconnect aborted: auth invalid");
-    }
-  }, delay);
-}
-
-// passive recovery
-window.addEventListener("online", () => connectWS());
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    connectWS();
-  }
-});
-
 // -----------------------------
 // Sending
 // -----------------------------
@@ -727,14 +622,12 @@ function genClientMsgID() {
 
 function sendActiveMessage() {
   if (!activeChatUser) return;
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
   const input = document.getElementById("chat-input");
   const body = (input.value || "").trim();
   if (!body) return;
 
   sendDM(activeChatUser.id, body);
-
   input.value = "";
 }
 
@@ -749,24 +642,24 @@ function sendDM(toUserID, body) {
   };
 
   pendingMessages.set(clientMsgID, payload);
-
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(payload));
-  }
-
-  // optimistic UI render remains unchanged
+  wsManager.send("dm", payload);
 }
 
 // -----------------------------
 // Init
 // -----------------------------
+function connect() {
+  wsManager.connect("dm", "/ws/dm");
+  wsManager.subscribe("dm", handleWsMessage);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const loggedIn = document.body.dataset.showLogin !== "1";
     if (!loggedIn) return;
   
     createChatSidebar();
     await loadThreads();
-    connectWS();
+    connect();
 
     window.addEventListener("scroll", scheduleChatSidebarStopUpdate, { passive: true });
     window.addEventListener("resize", scheduleChatSidebarStopUpdate);
