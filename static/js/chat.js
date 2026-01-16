@@ -213,10 +213,13 @@ function renderUsers(users) {
 }
 
 function openChat(user) {
-  const t = threads.find(t => t.other_user_id === user.id);
-  if (t) t.unread_count = 0;
-  
   activeChatUser = { id: user.id, username: user.username };
+  // clear unread badge locally (UI-only)
+  const t = threads.find(t => t.other_user_id === user.id);
+  if (t) {
+    t.unread_count = 0;
+  }
+  renderUsers(sortUsers(toThreadUserListItems()));
   activeMessages = [];
   paging = { oldestId: null, loading: false, exhausted: false };
 
@@ -485,14 +488,24 @@ function handleWsMessage(ev) {
 
     case "dm_new": {
       const { conversation_with, message } = msg;
-
-      if (activeChatUser && activeChatUser.id === conversation_with) {
+    
+      const isActiveChat =
+        activeChatUser && activeChatUser.id === conversation_with;
+    
+      if (isActiveChat) {
         appendMessage(message);
-
-        // suser is currently viewing this chat, so mark read
         sendReadReceipt();
+      } else {
+        //increment unread count locally
+        const t = threads.find(
+          t => t.other_user_id === conversation_with
+        );
+        if (t) {
+          t.unread_count = (t.unread_count || 0) + 1;
+        }
+        renderUsers(sortUsers(toThreadUserListItems()));
       }
-
+    
       break;
     }
 
