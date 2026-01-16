@@ -5,6 +5,7 @@ const notifList = document.getElementById("notif-list");
 const notifBadge = document.getElementById("notif-badge");
 
 let notifications = [];
+let ws = null;
 
 // Toggle dropdown on button click
 notifBtn.addEventListener("click", () => {
@@ -26,9 +27,11 @@ function wsURL(path) {
   return `${proto}//${location.host}${path}`;
 }
 
-const ws = new WebSocket(wsURL("/ws/notifications"));
+ws = new WebSocket(wsURL("/ws/notifications"));
 
-ws.onopen = () => console.log("Notification WS connected");
+ws.onopen = () => {
+    console.log("Notification WS connected");
+} 
 
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
