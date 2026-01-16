@@ -7,14 +7,24 @@ import (
 	"strings"
 )
 
+var Localhost = "localhost:8080"
+
 func CheckArguments() {
 	args := os.Args[1:]
 	if len(args) == 0 {
 		return // no flag passed
 	}
-	for _, flag := range args {
+	for i, flag := range args {
 		flag = strings.TrimSpace(flag)
 		switch flag {
+		case "--host":
+			if i+1 < len(args) {
+				host := strings.TrimSpace(args[i+1])
+				if host != "" {
+					logger.Log("Setting host to "+host, logger.InfoLevel)
+					Localhost = host
+				}
+			}
 		case "--debug", "-d":
 			logger.Debug = true
 			logger.Log("Debug messages are turned on", logger.InfoLevel)

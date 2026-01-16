@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -173,6 +174,16 @@ func DMWebSocketHandler(w http.ResponseWriter, r *http.Request) {
 
 			_ = database.UpdateLastRead(convID, lastID)
 
+			// mirror read position for per-user unread tracking
+			err = database.UpsertUserConversationLastRead(
+				userID,
+				convID,
+				lastID,
+			)
+			if err != nil {
+				// do NOT break read flow
+				log.Println("conversation_reads mirror failed:", err)
+			}
 			// notify the other user
 			realtime.DM.SendToUser(msg.ConversationWith, map[string]any{
 				"type":              "dm_read",

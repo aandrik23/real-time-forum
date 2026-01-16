@@ -2813,3 +2813,14 @@ body[data-show-login="0"] #logoutBtn {
     overflow-y: auto;
     margin-bottom: 1rem;
 }
+
+.unread-badge {
+  margin-left: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 10px;
+  background: #7c5cff;
+  color: #fff;
+  font-weight: 600;
+  line-height: 1;
+}

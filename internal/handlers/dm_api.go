@@ -72,10 +72,30 @@ func DMThreadsHandler(w http.ResponseWriter, r *http.Request) {
 		LastMessageAt     int64  `json:"last_message_at"`
 		LastMessageSender int    `json:"last_message_sender"`
 		Online            bool   `json:"online"`
+		UnreadCount       int    `json:"unread_count"`
 	}
 
 	out := make([]threadOut, 0, len(threads))
 	for _, t := range threads {
+
+		convID, ok, err := database.GetConversationIDIfExists(
+			payload.UserID,
+			t.OtherUserID,
+		)
+		if err != nil || !ok {
+			convID = 0
+		}
+
+		unread := 0
+		if convID > 0 {
+			if c, err := database.GetUnreadCountForConversation(
+				payload.UserID,
+				convID,
+			); err == nil {
+				unread = c
+			}
+		}
+
 		out = append(out, threadOut{
 			OtherUserID:       t.OtherUserID,
 			OtherUsername:     t.OtherUsername,
@@ -84,6 +104,7 @@ func DMThreadsHandler(w http.ResponseWriter, r *http.Request) {
 			LastMessageAt:     t.LastMessageAt,
 			LastMessageSender: t.LastMessageSender,
 			Online:            realtime.DM.IsOnline(t.OtherUserID),
+			UnreadCount:       unread,
 		})
 	}
 

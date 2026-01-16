@@ -369,3 +369,48 @@ func GetDMPartnerIDs(userID int) ([]int, error) {
 	}
 	return out, rows.Err()
 }
+
+// -------------------------
+// Unread tracking (per-user)
+// -------------------------
+
+func UpsertUserConversationLastRead(userID, convID, msgID int) error {
+	_, err := DB.Exec(`
+		INSERT INTO conversation_reads (conversation_id, user_id, last_read_msg_id)
+		VALUES (?, ?, ?)
+		ON CONFLICT(conversation_id, user_id)
+		DO UPDATE SET last_read_msg_id = excluded.last_read_msg_id
+	`, convID, userID, msgID)
+	return err
+}
+
+func GetUserConversationLastRead(userID, convID int) (int, error) {
+	var lastRead int
+	err := DB.QueryRow(`
+		SELECT last_read_msg_id
+		FROM conversation_reads
+		WHERE conversation_id = ? AND user_id = ?
+	`, convID, userID).Scan(&lastRead)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+	return lastRead, err
+}
+
+func GetUnreadCountForConversation(userID, convID int) (int, error) {
+	var count int
+
+	err := DB.QueryRow(`
+		SELECT COUNT(*)
+		FROM messages m
+		LEFT JOIN conversation_reads cr
+		  ON cr.conversation_id = m.conversation_id
+		 AND cr.user_id = ?
+		WHERE m.conversation_id = ?
+		  AND m.sender_id != ?
+		  AND m.id > COALESCE(cr.last_read_msg_id, 0)
+	`, userID, convID, userID).Scan(&count)
+
+	return count, err
+}

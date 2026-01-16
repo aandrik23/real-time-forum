@@ -14,10 +14,9 @@ import (
 	"time"
 )
 
-const address = "localhost:8080"
-
 func StartServer() {
 	internal.CheckArguments()
+	address := internal.Localhost
 	database.InitDB()
 	internal.Handlers()
 	err := logger.InitLogger()

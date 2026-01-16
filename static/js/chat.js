@@ -51,7 +51,8 @@ function toThreadUserListItems() {
       username: t.other_username,
       online: !!t.online,
       lastMessageAt: t.last_message_at || 0,
-      lastMessageBody: t.last_message_body || ""
+      lastMessageBody: t.last_message_body || "",
+      unreadCount: t.unread_count || 0 
     }));
   }
 
@@ -188,7 +189,10 @@ function renderUsers(users) {
     div.dataset.userId = String(user.id);
     div.innerHTML = `
         <div class="chat-user-left">
-          <span class="chat-username">${escapeHtml(user.username)}</span>
+          <span class="chat-username">
+            ${escapeHtml(user.username)}
+            ${user.unreadCount > 0 ? `<span class="unread-badge">${user.unreadCount}</span>` : ``}
+          </span>
           ${user.lastMessageBody ? `<div class="chat-last">${escapeHtml(user.lastMessageBody)}</div>` : ``}
         </div>
         <div class="chat-user-right">
@@ -209,6 +213,9 @@ function renderUsers(users) {
 }
 
 function openChat(user) {
+  const t = threads.find(t => t.other_user_id === user.id);
+  if (t) t.unread_count = 0;
+  
   activeChatUser = { id: user.id, username: user.username };
   activeMessages = [];
   paging = { oldestId: null, loading: false, exhausted: false };
