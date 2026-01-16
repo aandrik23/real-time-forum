@@ -100,7 +100,7 @@ func GetPostsByAuthorID(authorID int) ([]models.Post, error) {
 		post.Dislikes = dislikes
 
 		// Load comments for the post
-		comments, err := GetCommentsForPostPaged(post.ID, 5, 0)
+		comments, err := GetCommentsForPost(post.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +175,7 @@ SELECT p.id, p.user_id, p.title, p.content, p.created_at, u.username
 		post.Dislikes = dislikes
 
 		// Load comments for the post
-		comments, err := GetCommentsForPostPaged(post.ID, 5, 0)
+		comments, err := GetCommentsForPost(post.ID)
 		if err != nil {
 			return nil, err
 		}
