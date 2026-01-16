@@ -21,7 +21,12 @@ notifBtn.addEventListener("click", () => {
 });
 
 // Connect to WS
-const ws = new WebSocket("ws://localhost:8080/ws/notifications");
+function wsURL(path) {
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  return `${proto}//${location.host}${path}`;
+}
+
+const ws = new WebSocket(wsURL("/ws/notifications"));
 
 ws.onopen = () => console.log("Notification WS connected");
 
