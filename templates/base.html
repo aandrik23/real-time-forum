@@ -43,13 +43,15 @@
             <!-- Right: Notifications, Theme Toggle, Profile, Login/Register/Logout -->
             <!-- RIGHT: Notifications, Theme, Profile, Login/Register/Logout -->
             <div class="nav-right">
-                <button class="icon-btn notif-btn" aria-label="Notifications">
-                    <span class="badge">0</span>
-                </button>
-                <div id="notif-dropdown" style="display: none;">
-                    <ul id="notif-list">
-                        <!-- Notifications will be appended here -->
-                    </ul>
+                <div class="notification-container">
+                    <button class="icon-btn notif-btn" aria-label="Notifications">
+                        <span class="badge">0</span>
+                    </button>
+
+                    <div id="notif-dropdown" style="display: none;">
+                        <ul id="notif-list">
+                        </ul>
+                    </div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="theme-toggle">

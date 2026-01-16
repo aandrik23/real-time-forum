@@ -2815,12 +2815,54 @@ body[data-show-login="0"] #logoutBtn {
 }
 
 .unread-badge {
-  margin-left: 6px;
-  padding: 2px 6px;
-  font-size: 12px;
-  border-radius: 10px;
-  background: #7c5cff;
-  color: #fff;
-  font-weight: 600;
-  line-height: 1;
+    margin-left: 6px;
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 10px;
+    background: #7c5cff;
+    color: #fff;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.notification-container {
+    position: relative;
+    display: inline-block;
+}
+
+
+
+#notif-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background-color: #627b51;
+    min-width: 280px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#notif-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#notif-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid #0f0c0c;
+    cursor: pointer;
+}
+
+#notif-list li:last-child {
+    border-bottom: none;
+}
+
+#notif-list li:hover {
+    background-color: #8c9c7f;
 }
