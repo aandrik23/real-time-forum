@@ -100,14 +100,18 @@ func GetPostsByAuthorID(authorID int) ([]models.Post, error) {
 		post.Dislikes = dislikes
 
 		// Load comments for the post
-		comments, err := GetCommentsForPost(post.ID)
+		comments, err := GetCommentsForPostPaged(post.ID, 5, 0)
 		if err != nil {
 			return nil, err
 		}
 		post.Comments = comments
 
-		// Optional: number of comments can be length of comments slice
-		post.NumComments = len(comments)
+		err = DB.QueryRow(`
+	SELECT COUNT(*) FROM comments WHERE post_id = ?
+`, post.ID).Scan(&post.NumComments)
+		if err != nil {
+			return nil, err
+		}
 
 		posts = append(posts, post)
 	}
@@ -174,15 +178,18 @@ SELECT p.id, p.user_id, p.title, p.content, p.created_at, u.username
 		post.Likes = likes
 		post.Dislikes = dislikes
 
-		// Load comments for the post
-		comments, err := GetCommentsForPost(post.ID)
+		comments, err := GetCommentsForPostPaged(post.ID, 5, 0)
 		if err != nil {
 			return nil, err
 		}
 		post.Comments = comments
 
-		// Optional: number of comments can be length of comments slice
-		post.NumComments = len(comments)
+		err = DB.QueryRow(`
+	SELECT COUNT(*) FROM comments WHERE post_id = ?
+`, post.ID).Scan(&post.NumComments)
+		if err != nil {
+			return nil, err
+		}
 
 		posts = append(posts, post)
 	}

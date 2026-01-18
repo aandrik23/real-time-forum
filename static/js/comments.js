@@ -1,4 +1,4 @@
-import {getCookie, isAnonymous} from "./utils.js";
+import { getCookie, isAnonymous } from "./utils.js";
 import { authFetch } from "./auth.js";
 import { escapeHtml, formatGoDate } from "./render/renderUtils.js";
 
@@ -102,7 +102,7 @@ export function initLoadMoreComments() {
 
     const res = await authFetch(`/api/posts/comments?post_id=${postId}&limit=${limit}&offset=${offset}`);
     if (!res.ok) return;
-    
+
     const comments = await res.json();
     if (!comments.length) {
       btn.remove();
@@ -133,7 +133,7 @@ export function initLoadMoreComments() {
           </button>
         </div>
         `;
-        list.appendChild(div);
+      list.appendChild(div);
     });
     btn.dataset.offset = String(offset + comments.length);
 
