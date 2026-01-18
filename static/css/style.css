@@ -248,6 +248,8 @@ h6 {
     /* justify-content: space-between; */
     max-width: 100%;
     width: 100%;
+    position:fixed;
+    background-color: #627A50;
 }
 
 /* Nav sections */
@@ -2607,7 +2609,7 @@ body[data-show-login="0"] #logoutBtn {
 }
 
 .chat-online {
-    background: var(--accent);
+    background: rgb(31, 235, 31);
 }
 
 .chat-offline {

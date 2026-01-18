@@ -29,7 +29,7 @@
   export function renderBadges(categories = []) {
     return categories
       .map(c => `<span class="badge">${escapeHtml(c.Name)}</span>`)
-      .join("");
+      .join(", ");
   }
   
   export function renderPostActions({ id, likes = 0, dislikes = 0, comments = 0 }) {
