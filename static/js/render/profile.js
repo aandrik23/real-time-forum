@@ -187,12 +187,12 @@ function renderPostPreviewModal() {
           <button class="btn load-more-comments" data-post-id="" data-offset="0" data-list-id="previewCommentsList" data-total="0">
             Load more comments
           </button>
-
-          <form class="comment-form" id="previewCommentForm" data-post-id="">
-            <textarea placeholder="Write a comment..." required></textarea>
-            <button type="submit">Post</button>
-          </form>
         </div>
+
+        <form class="comment-form" id="previewCommentForm" data-post-id="">
+          <textarea placeholder="Write a comment..." required></textarea>
+          <button type="submit">Post</button>
+        </form>
       </div>
     </div>
   `;

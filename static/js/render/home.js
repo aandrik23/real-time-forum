@@ -124,7 +124,8 @@ function renderPostCard(p, isUser, username) {
             Load more comments
           </button>
         ` : ""}
-
+      </div>
+      <div>
         <form class="comment-form" data-post-id="${p.ID}">
           <textarea placeholder="Write a comment." required></textarea>
           <button type="submit">Post</button>
