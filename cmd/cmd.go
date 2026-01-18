@@ -30,7 +30,7 @@ func StartServer() {
 		Handler: nil,
 	}
 
-	fmt.Printf("\nServer running on %s\n", address)
+	fmt.Printf("\nServer running on http://%s\n", address)
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
