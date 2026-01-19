@@ -164,16 +164,6 @@ function initCreatePostBindings() {
     e.preventDefault();
 
     const max_categories = 5;
-    const categoryInputs = [...form.querySelectorAll('input[name="categories"]')];
-    function enforceCategoryLimit() {
-      const checkedCount = categoryInputs.filter(i => i.checked).length;
-      categoryInputs.forEach(i => {
-        i.disabled = !i.checked && checkedCount >= MAX_CATEGORIES;
-      });
-    }
-
-    categoryInputs.forEach(i => i.addEventListener("change", enforceCategoryLimit));
-    enforceCategoryLimit();
     const title = form.querySelector("#title")?.value.trim();
     const content = form.querySelector("#content")?.value.trim();
     const selected = [...form.querySelectorAll('input[name="categories"]:checked')]
