@@ -1,6 +1,6 @@
 import { initLikeButtons } from "./comments.js";
 import { openModal, closeModal, getCookie, isAnonymous } from "./utils.js";
-import { escapeHtml, renderBadges, formatGoDate } from "./render/renderUtils.js";
+import { escapeHtml, formatGoDate, renderCategoryBubbles } from "./render/renderUtils.js";
 import { navigate } from "./router.js"
 import { authFetch } from "./auth.js";
 
@@ -106,7 +106,7 @@ export function initPostPreviewModal() {
       const categories = JSON.parse(link.dataset.categories || "[]");
       const categoriesEl = document.getElementById("previewCategories");
       if (categoriesEl) {
-        categoriesEl.innerHTML = renderBadges(categories);
+        categoriesEl.innerHTML = renderCategoryBubbles(categories);
       }
 
       const postId = link.dataset.id;

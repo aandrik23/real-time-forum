@@ -1972,16 +1972,21 @@ html.dark-mode .meta {
     color: var(--color-secondary-light);
 }
 
+.categories-bubble {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
 
-.badges {
-    margin: 1rem 0;
+.category-bubble {
+    /* margin: 1rem 0; */
     padding: 0.5rem 1rem;
     border-radius: 999px;
     background-color: var(--accent);
     display: inline-block;
 }
 
-html.dark-mode .badges {
+html.dark-mode .category-bubble {
     background-color: #9A9465 !important;
     border-radius: 999px;
     color: var(--bg);

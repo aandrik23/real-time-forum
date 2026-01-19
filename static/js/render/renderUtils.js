@@ -26,10 +26,10 @@
      SHARED RENDER HELPERS
      ========================= */
   
-  export function renderBadges(categories = []) {
+  export function renderCategoryBubbles(categories = []) {
     return categories
-      .map(c => `<span class="badge">${escapeHtml(c.Name)}</span>`)
-      .join(", ");
+      .map(c => `<span class="category-bubble">${escapeHtml(c.Name)}</span>`)
+      .join(" ");
   }
   
   export function renderPostActions({ id, likes = 0, dislikes = 0, comments = 0 }) {

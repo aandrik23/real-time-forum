@@ -1,7 +1,7 @@
 import {
     escapeHtml,
     formatGoDate,
-    renderBadges,
+    renderCategoryBubbles,
     renderPostActions
   } from "./renderUtils.js";
   
@@ -18,8 +18,8 @@ export function renderPostFromJSON(data) {
     <article class="post-card" data-post-id="${p.ID}">
       ${renderPostHeader(p)}
       ${renderPostMeta(p)}
-      <div class="badges">
-        ${renderBadges(p.Categories)}
+      <div class="categories-bubble">
+        ${renderCategoryBubbles(p.Categories)}
       </div>
       ${renderPostActions({
         id: p.ID,

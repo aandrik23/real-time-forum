@@ -1,4 +1,4 @@
-import { escapeHtml, formatGoDate, renderBadges } from "./renderUtils.js";
+import { escapeHtml, formatGoDate, renderCategoryBubbles } from "./renderUtils.js";
 
 
 /* =========================
@@ -97,7 +97,7 @@ function renderProfilePostItem(p) {
 
 function renderProfileModals(data) {
   const categories = Array.isArray(data.categories) ? data.categories : [];
-  const previewCats = renderBadges(categories);
+  const previewCats = renderCategoryBubbles(categories);
 
   return `
       ${renderEditProfileModal()}
@@ -164,7 +164,7 @@ function renderPostPreviewModal() {
           <p class="meta" id="previewDate"></p>
         </div>
 
-        <div class="badges" id="previewCategories"></div>
+        <div class="category-bubble" id="previewCategories"></div>
 
         <div class="snippet" id="previewContent" style="white-space: pre-wrap;"></div>
 

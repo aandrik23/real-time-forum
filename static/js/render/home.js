@@ -1,7 +1,7 @@
 import {
     escapeHtml,
     formatGoDate,
-    renderBadges,
+    renderCategoryBubbles,
     renderPostActions
   } from "./renderUtils.js";
   
@@ -103,8 +103,8 @@ function renderPostCard(p, isUser, username) {
         by ${escapeHtml(p.Author)} on ${escapeHtml(formatGoDate(p.CreatedAt))}
       </p>
 
-      <div class="badges">
-        ${renderBadges(p.Categories)}
+      <div class="categories-bubble">
+        ${renderCategoryBubbles(p.Categories)}
       </div>
 
       ${renderPostActions({
