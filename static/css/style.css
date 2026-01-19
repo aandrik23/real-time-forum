@@ -2114,7 +2114,7 @@ html.dark-mode .comment-toggle-btn {
     /* lighter background in light mode */
     padding: 1.2rem;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */
     color: var(--fg);
     transition: background-color 0.3s, color 0.3s;
     opacity: 0;
@@ -2213,7 +2213,6 @@ html.dark-mode .comment-form button:hover {
 
 .load-more-comments {
     align-self: center;
-    margin: 1rem 0;
     padding: 0.5rem 1.2rem;
     border-radius: 999px;
     border: none;
@@ -2268,7 +2267,7 @@ html.dark-mode .snippet {
 html.dark-mode .comments-section {
     background-color: var(--secondary);
     color: var(--fg);
-    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.03);
+    /* box-shadow: 0 2px 10px rgba(255, 255, 255, 0.03); */
 }
 
 html.dark-mode .comment-form textarea {
@@ -2797,7 +2796,7 @@ body[data-show-login="0"] #logoutBtn {
 
 
 #postPreviewModal .modal-card {
-    max-height: 90vh;
+    max-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -2810,7 +2809,7 @@ body[data-show-login="0"] #logoutBtn {
 }
 
 .comments-section .comments-list {
-    max-height: 300px;
+    max-height: 260px;
     /* Adjust this value as needed */
     overflow-y: auto;
     margin-bottom: 1rem;
