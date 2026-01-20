@@ -59,7 +59,7 @@ function toThreadUserListItems() {
       online: !!t.online,
       lastMessageAt: t.last_message_at || 0,
       lastMessageBody: t.last_message_body || "",
-      unreadCount: t.unread_count || 0 
+      unreadCount: t.unread_count || 0
     }));
   }
 
@@ -160,9 +160,9 @@ function scheduleChatSidebarStopUpdate() {
 // DOM creation
 // -----------------------------
 function createChatSidebar() {
-    if (isAnonymous()) return;    
-    const root = document.getElementById("chat-root");
-    root.innerHTML = `
+  if (isAnonymous()) return;
+  const root = document.getElementById("chat-root");
+  root.innerHTML = `
       <div id="chat-sidebar">
         <div id="chat-header">
           <span>Messages</span>
@@ -171,20 +171,20 @@ function createChatSidebar() {
         <div id="chat-user-list"></div>
       </div>
     `;
-  
-    document.getElementById("chat-sidebar-toggle").addEventListener("click", () => {
-      document.getElementById("chat-sidebar").classList.toggle("collapsed");
-  
-      // if sidebar collapses, also move panel flush right
-      const panel = document.getElementById("chat-panel");
-      if (panel) panel.classList.toggle("sidebar-collapsed");
 
-      scheduleChatSidebarStopUpdate();
-    });
+  document.getElementById("chat-sidebar-toggle").addEventListener("click", () => {
+    document.getElementById("chat-sidebar").classList.toggle("collapsed");
+
+    // if sidebar collapses, also move panel flush right
+    const panel = document.getElementById("chat-panel");
+    if (panel) panel.classList.toggle("sidebar-collapsed");
 
     scheduleChatSidebarStopUpdate();
-  }
-  
+  });
+
+  scheduleChatSidebarStopUpdate();
+}
+
 
 function renderUsers(users) {
   const list = document.getElementById("chat-user-list");
@@ -207,15 +207,15 @@ function renderUsers(users) {
           <span class="chat-status ${user.online ? "chat-online" : "chat-offline"}"></span>
         </div>
       `;
-  
+
     div.addEventListener("click", () => {
-        document.querySelectorAll(".chat-user.active")
-          .forEach(el => el.classList.remove("active"));
-      
-        div.classList.add("active");
-        openChat(user);
-      });
-          list.appendChild(div);
+      document.querySelectorAll(".chat-user.active")
+        .forEach(el => el.classList.remove("active"));
+
+      div.classList.add("active");
+      openChat(user);
+    });
+    list.appendChild(div);
   });
 }
 
@@ -251,25 +251,32 @@ function openChat(user) {
     `;
 
   document.body.appendChild(panel);
-    // minimize chat
-    document.getElementById("chat-minimize").addEventListener("click", () => {
-        panel.classList.toggle("minimized");
-        renderMessages();
-        sendReadReceipt();
-      });
-  
+  // minimize chat
+
+  document.getElementById("chat-minimize").addEventListener("click", () => {
+    panel.classList.toggle("minimized");
+
+    // If un-minimizing (no longer has 'minimized' class)
+    if (!panel.classList.contains("minimized")) {
+      clearUnreadForActiveChat();
+      sendReadReceipt();
+    }
+
+    renderMessages();
+  });
+
   // close chat
   document.getElementById("chat-close").addEventListener("click", () => {
     panel.remove();
     activeChatUser = null;
     activeMessages = [];
     paging = { oldestId: null, loading: false, exhausted: false };
-  
+
     // clear selected highlight
     document.querySelectorAll(".chat-user.active")
       .forEach(el => el.classList.remove("active"));
   });
-  
+
   const messagesEl = document.getElementById("chat-messages");
   messagesEl.innerHTML = `<p style="opacity:.6">Loading...</p>`;
 
@@ -494,13 +501,25 @@ function handleWsMessage(ev) {
 
     case "dm_new": {
       const { conversation_with, message } = msg;
-    
+
       const isActiveChat =
         activeChatUser && activeChatUser.id === conversation_with;
-    
+
       if (isActiveChat) {
         appendMessage(message);
-        sendReadReceipt();
+        // Only send read receipt if chat is NOT minimized
+        if (!isChatPanelMinimized()) {
+          sendReadReceipt();
+        } else {
+          // Chat is active but minimized - increment unread count
+          const t = threads.find(
+            t => t.other_user_id === conversation_with
+          );
+          if (t) {
+            t.unread_count = (t.unread_count || 0) + 1;
+          }
+          renderUsers(sortUsers(toThreadUserListItems()));
+        }
       } else {
         //increment unread count locally
         const t = threads.find(
@@ -511,7 +530,7 @@ function handleWsMessage(ev) {
         }
         renderUsers(sortUsers(toThreadUserListItems()));
       }
-    
+
       break;
     }
 
@@ -522,20 +541,20 @@ function handleWsMessage(ev) {
         renderMessages();
       }
       break;
-    }    
-    
+    }
+
     case "dm_read": {
       const { conversation_with, last_read_msg_id } = msg;
       lastReadByUser.set(conversation_with, last_read_msg_id);
       renderMessages();
       break;
-    }    
+    }
 
     case "dm_error": {
       console.warn("DM error:", msg.error);
       break;
     }
-    
+
     case "thread_bump": {
       const idx = threads.findIndex(t => t.other_user_id === msg.other_user_id);
       if (idx !== -1) {
@@ -549,23 +568,23 @@ function handleWsMessage(ev) {
 
     case "presence": {
       const { user_id, online } = msg;
-    
+
       threads.forEach(t => {
         if (t.other_user_id === user_id) {
           t.online = online;
         }
       });
-    
+
       suggestedUsers.forEach(u => {
         if (u.user_id === user_id) {
           u.online = online;
         }
       });
-    
+
       renderUsers(sortUsers(toThreadUserListItems()));
       break;
     }
-    
+
 
     case "presence_snapshot": {
       const onlineSet = new Set(msg.online_ids || []);
@@ -654,15 +673,27 @@ function connect() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const loggedIn = document.body.dataset.showLogin !== "1";
-    if (!loggedIn) return;
-  
-    createChatSidebar();
-    await loadThreads();
-    connect();
+  const loggedIn = document.body.dataset.showLogin !== "1";
+  if (!loggedIn) return;
 
-    window.addEventListener("scroll", scheduleChatSidebarStopUpdate, { passive: true });
-    window.addEventListener("resize", scheduleChatSidebarStopUpdate);
-    scheduleChatSidebarStopUpdate();
-  });
-  
+  createChatSidebar();
+  await loadThreads();
+  connect();
+
+  window.addEventListener("scroll", scheduleChatSidebarStopUpdate, { passive: true });
+  window.addEventListener("resize", scheduleChatSidebarStopUpdate);
+  scheduleChatSidebarStopUpdate();
+});
+
+
+
+// Add this helper function to clear unread when un-minimizing:
+function clearUnreadForActiveChat() {
+  if (!activeChatUser) return;
+  const t = threads.find(t => t.other_user_id === activeChatUser.id);
+  if (t) {
+    t.unread_count = 0;
+  }
+  renderUsers(sortUsers(toThreadUserListItems()));
+}
+
