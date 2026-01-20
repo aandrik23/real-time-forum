@@ -302,6 +302,14 @@ func GetPostsByCategoryID(categoryID int) ([]models.Post, error) {
 		if err := rows.Scan(&post.ID, &post.AuthorID, &post.Title, &post.Content, &post.CreatedAt); err != nil {
 			return nil, err
 		}
+
+		// Fetch author username using post.AuthorID
+		err := DB.QueryRow("SELECT username FROM users WHERE id = ?", post.AuthorID).Scan(&post.Author)
+		if err != nil {
+			return nil, err
+		}
+
+
 		// Optionally load categories, likes, comments...
 		post.Categories, _ = GetCategoriesByPostID(post.ID)
 		post.Comments, _ = GetCommentsForPostPaged(post.ID, 5, 0)
