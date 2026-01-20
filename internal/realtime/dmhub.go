@@ -95,6 +95,28 @@ func (h *DMHub) SendPresenceToUsers(targetUserIDs []int, userID int, online bool
 	}
 }
 
+
+func (h *DMHub) Broadcast(payload any) {
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+
+	h.mu.RLock()
+	var all []*websocket.Conn
+	for _, set := range h.conns {
+		for c := range set {
+			all = append(all, c)
+		}
+	}
+	h.mu.RUnlock()
+
+	for _, c := range all {
+		_ = c.WriteMessage(websocket.TextMessage, b)
+	}
+}
+
+
 func (h *DMHub) SendToUser(userID int, payload any) {
 	b, err := json.Marshal(payload)
 	if err != nil {

@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/mail"
 	"strings"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -145,6 +144,18 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		string(hashedPassword),
 		"inactive",
 	)
+
+
+// broadcast to all online users
+realtime.DM.Broadcast(map[string]any{
+	"type": "user_registered",
+	"user": map[string]any{
+		"username": username,
+		"online": false, // new user is not connected yet
+	},
+})
+
+
 
 	if err != nil {
 		if err.Error() == "username already exists" {
