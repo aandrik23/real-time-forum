@@ -343,31 +343,28 @@ func GetConversationIDIfExists(userA, userB int) (int, bool, error) {
 	return 0, false, err
 }
 
-func GetDMPartnerIDs(userID int) ([]int, error) {
+func GetAllUserIDsExcept(excludeUserID int) ([]int, error) {
 	rows, err := DB.Query(`
-		SELECT
-			CASE
-				WHEN user1_id = ? THEN user2_id
-				ELSE user1_id
-			END AS other_id
-		FROM conversations
-		WHERE (user1_id = ? OR user2_id = ?)
-		  AND last_message_at IS NOT NULL
-	`, userID, userID, userID)
+		SELECT id 
+		FROM users 
+		WHERE id != $1 
+		  AND status != 'banned'
+		ORDER BY id
+	`, excludeUserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var out []int
+	var ids []int
 	for rows.Next() {
 		var id int
 		if err := rows.Scan(&id); err != nil {
 			return nil, err
 		}
-		out = append(out, id)
+		ids = append(ids, id)
 	}
-	return out, rows.Err()
+	return ids, rows.Err()
 }
 
 // -------------------------

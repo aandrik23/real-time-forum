@@ -99,27 +99,26 @@ func DMWebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Send presence snapshot to this client (initial state) - partners only
-	partners, err := database.GetDMPartnerIDs(userID)
-	online := []int{}
-	if err == nil && len(partners) > 0 {
-		for _, pid := range partners {
-			if realtime.DM.IsOnline(pid) {
-				online = append(online, pid)
-			}
+allUserIDs, err := database.GetAllUserIDsExcept(userID)
+online := []int{}
+if err == nil && len(allUserIDs) > 0 {
+	for _, uid := range allUserIDs {
+		if realtime.DM.IsOnline(uid) {
+			online = append(online, uid)
 		}
 	}
+}
 
-	_ = conn.WriteJSON(map[string]any{
-		"type":       "presence_snapshot",
-		"online_ids": online,
-	})
+_ = conn.WriteJSON(map[string]any{
+	"type":       "presence_snapshot",
+	"online_ids": online,
+})
 
-	if becameOnline {
-		partners, err := database.GetDMPartnerIDs(userID)
-		if err == nil && len(partners) > 0 {
-			realtime.DM.SendPresenceToUsers(realtime.DM.ListOnlineUserIDs(), userID, true)
-		}
-	}
+// Broadcast to ALL users that this user came online
+if becameOnline {
+	// Send to all online users, not just partners
+	realtime.DM.SendPresenceToUsers(realtime.DM.ListOnlineUserIDs(), userID, true)
+}
 
 	defer func() {
 		// tolerate already-removed connections

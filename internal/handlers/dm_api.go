@@ -28,42 +28,33 @@ func DMThreadsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If user has no threads: return suggested users alphabetically
-	if len(threads) == 0 {
-		users, err := database.GetSuggestedDMUsers(payload.UserID)
-		if err != nil {
-			WriteJSONError(w, "server error", http.StatusInternalServerError)
-			return
-		}
-
-		// include online flag based on WS presence
-		type sug struct {
-			UserID   int    `json:"user_id"`
-			Username string `json:"username"`
-			Avatar   string `json:"avatar"`
-			Status   string `json:"status"`
-			Online   bool   `json:"online"`
-		}
-		outUsers := make([]sug, 0, len(users))
-		for _, u := range users {
-			outUsers = append(outUsers, sug{
-				UserID:   u.UserID,
-				Username: u.Username,
-				Avatar:   u.Avatar,
-				Status:   u.Status,
-				Online:   realtime.DM.IsOnline(u.UserID),
-			})
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"threads":         []any{},
-			"suggested_users": outUsers,
-		})
+	// Always fetch suggested users
+	users, err := database.GetSuggestedDMUsers(payload.UserID)
+	if err != nil {
+		WriteJSONError(w, "server error", http.StatusInternalServerError)
 		return
 	}
 
-	// Add online flag to threads
+	// Build suggested users list with online status
+	type sug struct {
+		UserID   int    `json:"user_id"`
+		Username string `json:"username"`
+		Avatar   string `json:"avatar"`
+		Status   string `json:"status"`
+		Online   bool   `json:"online"`
+	}
+	outUsers := make([]sug, 0, len(users))
+	for _, u := range users {
+		outUsers = append(outUsers, sug{
+			UserID:   u.UserID,
+			Username: u.Username,
+			Avatar:   u.Avatar,
+			Status:   u.Status,
+			Online:   realtime.DM.IsOnline(u.UserID),
+		})
+	}
+
+	// Build threads list with online status and unread counts
 	type threadOut struct {
 		OtherUserID       int    `json:"other_user_id"`
 		OtherUsername     string `json:"other_username"`
@@ -75,9 +66,8 @@ func DMThreadsHandler(w http.ResponseWriter, r *http.Request) {
 		UnreadCount       int    `json:"unread_count"`
 	}
 
-	out := make([]threadOut, 0, len(threads))
+	outThreads := make([]threadOut, 0, len(threads))
 	for _, t := range threads {
-
 		convID, ok, err := database.GetConversationIDIfExists(
 			payload.UserID,
 			t.OtherUserID,
@@ -96,7 +86,7 @@ func DMThreadsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		out = append(out, threadOut{
+		outThreads = append(outThreads, threadOut{
 			OtherUserID:       t.OtherUserID,
 			OtherUsername:     t.OtherUsername,
 			OtherAvatar:       t.OtherAvatar,
@@ -108,9 +98,11 @@ func DMThreadsHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// Always return both threads and suggested_users
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]any{
-		"threads": out,
+		"threads":         outThreads,
+		"suggested_users": outUsers,
 	})
 }
 

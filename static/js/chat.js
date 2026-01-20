@@ -51,25 +51,39 @@ const lastReadByUser = new Map();
 // Helpers
 // -----------------------------
 function toThreadUserListItems() {
-  // If threads exist, they are the list. If none, use suggested users list.
-  if (threads.length > 0) {
-    return threads.map(t => ({
+  const items = [];
+
+  // Add all threads (existing conversations)
+  threads.forEach(t => {
+    items.push({
       id: t.other_user_id,
       username: t.other_username,
       online: !!t.online,
       lastMessageAt: t.last_message_at || 0,
       lastMessageBody: t.last_message_body || "",
-      unreadCount: t.unread_count || 0
-    }));
-  }
+      unreadCount: t.unread_count || 0,
+      hasThread: true
+    });
+  });
 
-  return suggestedUsers.map(u => ({
-    id: u.user_id,
-    username: u.username,
-    online: !!u.online,
-    lastMessageAt: 0,
-    lastMessageBody: ""
-  }));
+  // Add suggested users that are NOT already in threads
+  const threadUserIds = new Set(threads.map(t => t.other_user_id));
+
+  suggestedUsers.forEach(u => {
+    if (!threadUserIds.has(u.user_id)) {
+      items.push({
+        id: u.user_id,
+        username: u.username,
+        online: !!u.online,
+        lastMessageAt: 0,
+        lastMessageBody: "",
+        unreadCount: 0,
+        hasThread: false
+      });
+    }
+  });
+
+  return items;
 }
 
 function sortUsers(users) {
