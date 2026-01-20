@@ -145,18 +145,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		"inactive",
 	)
 
-
-// broadcast to all online users
-realtime.DM.Broadcast(map[string]any{
-	"type": "user_registered",
-	"user": map[string]any{
-		"username": username,
-		"online": false, // new user is not connected yet
-	},
-})
-
-
-
 	if err != nil {
 		if err.Error() == "username already exists" {
 			WriteJSONError(w, "Username already exists", http.StatusBadRequest)
@@ -169,6 +157,18 @@ realtime.DM.Broadcast(map[string]any{
 		WriteJSONError(w, "Database error", http.StatusInternalServerError)
 		return
 	}
+
+	
+
+	// broadcast to all online users
+realtime.DM.Broadcast(map[string]any{
+	"type": "user_registered",
+	"user": map[string]any{
+		"username": username,
+		"online": false, // new user is not connected yet
+	},
+})
+
 
 	logger.Log(fmt.Sprintf(
 		"New user registered: %s | email: %s",
