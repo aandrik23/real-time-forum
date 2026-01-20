@@ -163,18 +163,11 @@ function initCreatePostBindings() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const max_categories = 5;
     const title = form.querySelector("#title")?.value.trim();
     const content = form.querySelector("#content")?.value.trim();
     const selected = [...form.querySelectorAll('input[name="categories"]:checked')]
       .map(cb => Number(cb.value))
       .filter(n => Number.isFinite(n) && n > 0);
-
-    if (selected.length > max_categories) {
-      // show an alert
-      alert(`Select up to ${max_categories} categories.`);
-      return;
-    }
 
     if (!title || !content) return;
 
@@ -201,7 +194,7 @@ function initCreatePostBindings() {
       }
 
       const out = await res.json(); // { ok, post_id }
-      const path = `/post/${out.post_id}`;
+      const path = `/home`;
 
       navigate(path);
     } catch (err) {
