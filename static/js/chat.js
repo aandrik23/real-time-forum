@@ -513,27 +513,6 @@ function handleWsMessage(ev) {
       break;
     }
 
-    case "user_registered": {
-      const u = msg.user;
-      if (!u || u.user_id === CURRENT_USER_ID) break;
-
-      const exists =
-        threads.some(t => t.other_user_id === u.user_id) ||
-        suggestedUsers.some(s => s.user_id === u.user_id);
-
-      if (!exists) {
-        suggestedUsers.unshift({
-          user_id: u.user_id,
-          username: u.username,
-          online: !!u.online
-        });
-
-        renderUsers(sortUsers(toThreadUserListItems()));
-      }
-      break;
-    }
-
-
     case "dm_new": {
       const { conversation_with, message } = msg;
 
@@ -687,15 +666,7 @@ function sendActiveMessage() {
 
 function sendDM(toUserID, body) {
   const clientMsgID = genClientMsgID();
-
-
-  //sidebar update
-  const t = threads.find(t => t.other_user_id === toUserID);
-  if (t) {
-    t.last_message_body = body;
-    t.last_message_at = Math.floor(Date.now() / 1000);
-  }
-
+  
   renderUsers(sortUsers(toThreadUserListItems()));
 
   const payload = {

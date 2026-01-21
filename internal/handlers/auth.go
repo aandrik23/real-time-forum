@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/mail"
 	"strings"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -157,18 +158,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		WriteJSONError(w, "Database error", http.StatusInternalServerError)
 		return
 	}
-
-	
-
-	// broadcast to all online users
-realtime.DM.Broadcast(map[string]any{
-	"type": "user_registered",
-	"user": map[string]any{
-		"username": username,
-		"online": false, // new user is not connected yet
-	},
-})
-
 
 	logger.Log(fmt.Sprintf(
 		"New user registered: %s | email: %s",
