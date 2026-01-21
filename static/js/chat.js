@@ -506,6 +506,42 @@ function handleWsMessage(ev) {
   }
 
   switch (msg.type) {
+    case "user_upsert": {
+      const u = msg.user;
+      if (!u || u.user_id === CURRENT_USER_ID) break;
+
+      const inThreads = threads.some(t => t.other_user_id === u.user_id);
+      if (!inThreads) {
+        const idx = suggestedUsers.findIndex(x => x.user_id === u.user_id);
+        if (idx === -1) suggestedUsers.unshift(u);
+        else suggestedUsers[idx] = { ...suggestedUsers[idx], ...u };
+      } else {
+        // if user is in threads, update their online state there too
+        threads.forEach(t => {
+          if (t.other_user_id === u.user_id) t.online = !!u.online;
+        });
+      }
+
+      renderUsers(sortUsers(toThreadUserListItems()));
+      break;
+    }
+
+    case "user_directory_update": {
+      const users = Array.isArray(msg.users) ? msg.users : [];
+
+      // Replace suggested users authoritatively
+      suggestedUsers = users.map(u => ({
+        user_id: u.user_id,
+        username: u.username,
+        online: !!u.online,
+        // optional if you later display these:
+        avatar: u.avatar,
+        status: u.status
+      }));
+
+      renderUsers(sortUsers(toThreadUserListItems()));
+      break;
+    }
 
     case "dm_ack": {
       const { client_msg_id } = msg;
@@ -666,7 +702,7 @@ function sendActiveMessage() {
 
 function sendDM(toUserID, body) {
   const clientMsgID = genClientMsgID();
-  
+
   renderUsers(sortUsers(toThreadUserListItems()));
 
   const payload = {

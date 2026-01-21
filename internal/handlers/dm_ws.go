@@ -73,6 +73,51 @@ func DMWebSocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Register presence
 	becameOnline := realtime.DM.AddConn(userID, conn)
+
+	// 1) presence snapshot (ONCE)
+	onlineIDs := realtime.DM.ListOnlineUserIDs()
+	_ = conn.WriteJSON(map[string]any{
+		"type":       "presence_snapshot",
+		"online_ids": onlineIDs,
+	})
+
+	// 2) directory snapshot (NEW) — same shape as /api/dm/threads suggested_users
+	users, err := database.GetSuggestedDMUsers(userID)
+	if err == nil {
+		type sug struct {
+			UserID   int    `json:"user_id"`
+			Username string `json:"username"`
+			Avatar   string `json:"avatar"`
+			Status   string `json:"status"`
+			Online   bool   `json:"online"`
+		}
+		outUsers := make([]sug, 0, len(users))
+		for _, u := range users {
+			outUsers = append(outUsers, sug{
+				UserID:   u.UserID,
+				Username: u.Username,
+				Avatar:   u.Avatar,
+				Status:   u.Status,
+				Online:   realtime.DM.IsOnline(u.UserID),
+			})
+		}
+
+		_ = conn.WriteJSON(map[string]any{
+			"type":  "user_directory_update",
+			"users": outUsers,
+		})
+	}
+	if becameOnline {
+		realtime.DM.SendToAll(map[string]any{
+			"type": "user_upsert",
+			"user": map[string]any{
+				"user_id":  userID,
+				"username": payload.Username,
+				"online":   true,
+			},
+		})
+	}
+
 	if becameOnline {
 		undelivered, err := database.GetUndeliveredDMsForUser(userID)
 		if err == nil && len(undelivered) > 0 {
@@ -91,38 +136,23 @@ func DMWebSocketHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// also tell this client they are online (useful for UI)
-	_ = conn.WriteJSON(map[string]any{
-		"type":    "presence",
-		"user_id": userID,
-		"online":  true,
-	})
-
-	// Send presence snapshot to this client (initial state) - partners only
-allUserIDs, err := database.GetAllUserIDsExcept(userID)
-online := []int{}
-if err == nil && len(allUserIDs) > 0 {
-	for _, uid := range allUserIDs {
-		if realtime.DM.IsOnline(uid) {
-			online = append(online, uid)
-		}
+	// Broadcast to ALL users that this user came online
+	if becameOnline {
+		// Send to all online users, not just partners
+		realtime.DM.SendPresenceToUsers(realtime.DM.ListOnlineUserIDs(), userID, true)
 	}
-}
-
-_ = conn.WriteJSON(map[string]any{
-	"type":       "presence_snapshot",
-	"online_ids": online,
-})
-
-// Broadcast to ALL users that this user came online
-if becameOnline {
-	// Send to all online users, not just partners
-	realtime.DM.SendPresenceToUsers(realtime.DM.ListOnlineUserIDs(), userID, true)
-}
 
 	defer func() {
-		// tolerate already-removed connections
-		realtime.DM.RemoveConn(userID, conn)
+		becameOffline := realtime.DM.RemoveConn(userID, conn)
+		if becameOffline {
+			realtime.DM.SendToAll(map[string]any{
+				"type": "user_upsert",
+				"user": map[string]any{
+					"user_id": userID,
+					"online":  false,
+				},
+			})
+		}
 	}()
 
 	// Heartbeat
@@ -228,23 +258,10 @@ if becameOnline {
 			}
 
 			// Persist
-			convID, created, err := database.GetOrCreateConversation(userID, msg.ToUserID)
+			convID, _, err := database.GetOrCreateConversation(userID, msg.ToUserID)
 			if err != nil {
 				sendErr("server error")
 				continue
-			}
-
-			if created {
-				realtime.DM.SendToUser(msg.ToUserID, map[string]any{
-					"type":    "presence",
-					"user_id": userID,
-					"online":  true,
-				})
-				_ = conn.WriteJSON(map[string]any{
-					"type":    "presence",
-					"user_id": msg.ToUserID,
-					"online":  realtime.DM.IsOnline(msg.ToUserID),
-				})
 			}
 
 			msgID, createdAt, err := database.InsertDM(convID, userID, body)

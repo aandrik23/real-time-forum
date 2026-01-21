@@ -15,6 +15,26 @@ type DMHub struct {
 	conns map[int]map[*websocket.Conn]struct{}
 }
 
+func (h *DMHub) SendToAll(payload any) {
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+
+	h.mu.RLock()
+	var conns []*websocket.Conn
+	for _, set := range h.conns {
+		for c := range set {
+			conns = append(conns, c)
+		}
+	}
+	h.mu.RUnlock()
+
+	for _, c := range conns {
+		_ = c.WriteMessage(websocket.TextMessage, b)
+	}
+}
+
 func (h *DMHub) ListOnlineUserIDs() []int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
