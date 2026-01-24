@@ -1,10 +1,10 @@
 import {
-    escapeHtml,
-    formatGoDate,
-    renderCategoryBubbles,
-    renderPostActions
-  } from "./renderUtils.js";
-  
+  escapeHtml,
+  formatGoDate,
+  renderCategoryBubbles,
+  renderPostActions
+} from "./renderUtils.js";
+
 
 /* =========================
    PUBLIC ENTRY POINT
@@ -108,11 +108,11 @@ function renderPostCard(p, isUser, username) {
       </div>
 
       ${renderPostActions({
-          id: p.ID,
-          likes: p.Likes ?? 0,
-          dislikes: p.Dislikes ?? 0,
-          comments: p.NumComments ?? 0
-      })}
+    id: p.ID,
+    likes: p.Likes ?? 0,
+    dislikes: p.Dislikes ?? 0,
+    comments: p.NumComments ?? 0
+  })}
 
 
       <div class="comments-section hidden" id="comments-${p.ID}">
@@ -124,8 +124,6 @@ function renderPostCard(p, isUser, username) {
             Load more comments
           </button>
         ` : ""}
-      </div>
-      <div>
         <form class="comment-form" data-post-id="${p.ID}">
           <textarea placeholder="Write a comment." required></textarea>
           <button type="submit">Post</button>
