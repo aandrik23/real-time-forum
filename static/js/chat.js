@@ -406,6 +406,28 @@ async function loadThreads() {
   renderUsers(listItems);
 }
 
+function ensureThreadForUser(otherUserID, username = null) {
+  let t = threads.find(t => t.other_user_id === otherUserID);
+  if (t) return t;
+
+  // Try to inherit presence from suggested users
+  const su = suggestedUsers.find(u => u.user_id === otherUserID);
+
+  t = {
+    other_user_id: otherUserID,
+    other_username: username || su?.username || "Unknown",
+    other_avatar: su?.avatar || "",
+    last_message_body: "",
+    last_message_at: 0,
+    last_message_sender: 0,
+    online: su ? !!su.online : false, // preserve presence
+    unread_count: 0
+  };
+
+  threads.unshift(t);
+  return t;
+}
+
 function sendReadReceipt() {
   if (!activeChatUser || activeMessages.length === 0) return;
   if (isChatPanelMinimized()) return;
@@ -572,10 +594,18 @@ function handleWsMessage(ev) {
         }
       } else {
         //increment unread count locally
-        const t = threads.find(
-          t => t.other_user_id === conversation_with
+        // const t = threads.find(
+        //   t => t.other_user_id === conversation_with
+        // );
+        // if (t) {
+        //   t.unread_count = (t.unread_count || 0) + 1;
+        // }
+        const t = ensureThreadForUser(
+          conversation_with,
+          message.sender_username
         );
-        if (t) {
+
+        if (!isActiveChat || isChatPanelMinimized()) {
           t.unread_count = (t.unread_count || 0) + 1;
         }
         renderUsers(sortUsers(toThreadUserListItems()));
@@ -606,12 +636,11 @@ function handleWsMessage(ev) {
     }
 
     case "thread_bump": {
-      const idx = threads.findIndex(t => t.other_user_id === msg.other_user_id);
-      if (idx !== -1) {
-        threads[idx].last_message_body = msg.last_message_body;
-        threads[idx].last_message_at = msg.last_message_at;
-        threads[idx].last_message_sender = msg.last_message_sender;
-      }
+      const t = ensureThreadForUser(msg.other_user_id);
+      t.last_message_body = msg.last_message_body;
+      t.last_message_at = msg.last_message_at;
+      t.last_message_sender = msg.last_message_sender;
+    
       renderUsers(sortUsers(toThreadUserListItems()));
       break;
     }

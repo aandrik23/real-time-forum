@@ -21,7 +21,8 @@ function createState(channel, path) {
     reconnectTimer: null,
     reconnectAttempt: 0,
     manualClose: false,
-    subscribers: new Set()
+    subscribers: new Set(),
+    outbox: [] 
   };
 }
 
@@ -48,6 +49,14 @@ function connect(channel, path) {
     if (state.reconnectTimer) {
       clearTimeout(state.reconnectTimer);
       state.reconnectTimer = null;
+    }
+
+    // flush queued messages
+    if (state.outbox.length) {
+      const q = state.outbox.splice(0, state.outbox.length);
+      for (const msg of q) {
+        try { state.ws.send(msg); } catch {}
+      }
     }
   });
 
@@ -96,8 +105,21 @@ function subscribe(channel, handler) {
 
 function send(channel, payload) {
   const state = sockets.get(channel);
-  if (!state || !state.ws || state.ws.readyState !== WebSocket.OPEN) return;
-  state.ws.send(JSON.stringify(payload));
+  if (!state) return;
+
+  const msg = JSON.stringify(payload);
+
+  // If socket is OPEN, send now.
+  if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+    state.ws.send(msg);
+    return;
+  }
+
+  // Otherwise queue it (don’t drop).
+  state.outbox.push(msg);
+
+  // Ensure we are connecting (or will reconnect)
+  connect(state.channel, state.path);
 }
 
 function disconnect(channel) {
