@@ -99,7 +99,7 @@ export function initProfileModal() {
   avatarSelectModal.querySelectorAll('.modal-close')
     .forEach(btn => btn.addEventListener('click', () => closeModal(avatarSelectModal)));
 
-  // -------------------- SAVE CHANGES (SPA-style) --------------------
+  // -------------------- SAVE CHANGES --------------------
   const form = document.getElementById('editProfileForm');
   if (!form) return;
   form.addEventListener('submit', async e => {

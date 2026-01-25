@@ -6,7 +6,7 @@ const sidebar = document.querySelector(".sidebar");
 const toggleBtn = document.getElementById("sidebar-toggle");
 const contentWrapper = document.querySelector(".container.content");
 
-// ------------------ FILTER MODAL (updated for SPA) ------------------
+// ------------------ FILTER MODAL ------------------
 export function initFilterModal() {
     const filterModal = document.getElementById('filterModal');
     const filterBtn = document.querySelector('.filter-btn');
@@ -36,11 +36,10 @@ export function initFilterModal() {
   
       const url = new URL(window.location.href);
   
-      // Keep your existing names
+      // Keep existing names
       url.searchParams.set('sort', sortValue);
       url.searchParams.set('categories', selectedCategories.join(','));
   
-      // Also set backend-compatible params used in HomeHandler:
       if (sortValue) {
         url.searchParams.set('filter', sortValue); // HomeHandler expects "filter"
       }
@@ -93,7 +92,7 @@ export function initSidebarToggle() {
     });
   }
   
-  // ------------------ NAVIGATION (updated for SPA) ------------------
+  // ------------------ NAVIGATION ------------------
   export function initNavLinks() {
     const newPostBtn = document.querySelector(".newpost-btn");
     newPostBtn?.addEventListener("click", (e) => {

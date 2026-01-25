@@ -1,4 +1,3 @@
-// A static list of 20 seed strings you want to offer
 export const AVATAR_SEEDS = [
     "demo","alice","bob","carol","dave",
     "eve","frank","grace","heidi","ivan",

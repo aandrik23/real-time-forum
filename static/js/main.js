@@ -65,22 +65,3 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPage(initialPath);
 
 });
-
-
-
-//     // ——— new category–injection code ———
-//     const rawCats = link.dataset.categories || '';
-//     const cats    = rawCats ? rawCats.split(',') : [];
-//     const catContainer = modal.querySelector('.modal-categories');
-
-// // clear old ones
-//     catContainer.innerHTML = '';
-
-// // append only this post’s badges
-//     cats.forEach(name => {
-//         const span = document.createElement('span');
-//         span.className   = 'badge';
-//         span.textContent = name;
-//         catContainer.appendChild(span);
-//     });
-// // ————————————————————————————————

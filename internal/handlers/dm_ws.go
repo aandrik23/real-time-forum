@@ -18,7 +18,7 @@ var dmUpgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 
 	// Same-origin planned: allow same host.
-	// If you later add cross-origin, tighten this explicitly.
+
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 		if origin == "" {

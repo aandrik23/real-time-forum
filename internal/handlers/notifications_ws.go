@@ -41,7 +41,7 @@ func NotificationWebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	realtime.Notif.AddConn(userID, conn)
 	defer realtime.Notif.RemoveConn(userID, conn)
 
-	// Optional: send initial connected message
+	// send initial connected message
 	_ = conn.WriteJSON(map[string]any{
 		"type":    "connected",
 		"user_id": userID,

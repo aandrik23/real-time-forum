@@ -50,7 +50,7 @@ async function loadHomeAPI(path) {
   const appRoot = document.getElementById("app-root");
   if (!appRoot) return;
 
-  appRoot.innerHTML = renderHomeFromJSON(data); // you create this renderer
+  appRoot.innerHTML = renderHomeFromJSON(data); 
   fillCsrfInputs();
   initPageContent();
 }
@@ -140,7 +140,7 @@ async function loadCreatePostAPI() {
   appRoot.innerHTML = renderCreatePostFromJSON(data);
   initCreatePostBindings();
   fillCsrfInputs();
-  initPageContent(); // keeps likes/comments/etc safe (won't do anything on this page)
+  initPageContent(); // keeps likes/comments/etc
 }
 
 function initCreatePostBindings() {

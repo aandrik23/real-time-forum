@@ -105,7 +105,6 @@ function sortUsers(users) {
 
 function fmtTime(unixSec) {
   const d = new Date(unixSec * 1000);
-  // Keep it simple; you can style later
   return d.toLocaleString();
 }
 
@@ -189,7 +188,7 @@ function createChatSidebar() {
   document.getElementById("chat-sidebar-toggle").addEventListener("click", () => {
     document.getElementById("chat-sidebar").classList.toggle("collapsed");
 
-    // if sidebar collapses, also move panel flush right
+    
     const panel = document.getElementById("chat-panel");
     if (panel) panel.classList.toggle("sidebar-collapsed");
 
@@ -376,7 +375,7 @@ function appendMessage(msgObj) {
 }
 
 function prependMessages(msgs) {
-  // msgs are oldest->newest (your backend step 10)
+  // msgs are oldest->newest
   const el = document.getElementById("chat-messages");
   const prevHeight = el ? el.scrollHeight : 0;
 
@@ -410,7 +409,7 @@ function ensureThreadForUser(otherUserID, username = null) {
   let t = threads.find(t => t.other_user_id === otherUserID);
   if (t) return t;
 
-  // Try to inherit presence from suggested users
+  // inherit presence from suggested users
   const su = suggestedUsers.find(u => u.user_id === otherUserID);
 
   t = {
@@ -593,13 +592,6 @@ function handleWsMessage(ev) {
           renderUsers(sortUsers(toThreadUserListItems()));
         }
       } else {
-        //increment unread count locally
-        // const t = threads.find(
-        //   t => t.other_user_id === conversation_with
-        // );
-        // if (t) {
-        //   t.unread_count = (t.unread_count || 0) + 1;
-        // }
         const t = ensureThreadForUser(
           conversation_with,
           message.sender_username
@@ -768,7 +760,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-// Add this helper function to clear unread when un-minimizing:
+//clear unread when un-minimizing:
 function clearUnreadForActiveChat() {
   if (!activeChatUser) return;
   const t = threads.find(t => t.other_user_id === activeChatUser.id);

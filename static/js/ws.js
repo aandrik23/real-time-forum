@@ -91,8 +91,7 @@ function scheduleReconnect(state) {
       if (!res.ok) throw new Error();
       connect(state.channel, state.path);
     } catch {
-      // auth invalid, do nothing
-       console.warn("WS reconnect aborted: auth invalid"); //debug
+       console.warn("WS reconnect aborted"); 
     }
   }, delay);
 }
@@ -115,10 +114,10 @@ function send(channel, payload) {
     return;
   }
 
-  // Otherwise queue it (don’t drop).
+  // Otherwise queue it 
   state.outbox.push(msg);
 
-  // Ensure we are connecting (or will reconnect)
+  // Ensure we are connecting 
   connect(state.channel, state.path);
 }
 

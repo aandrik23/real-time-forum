@@ -29,7 +29,6 @@ export async function authFetch(input, init = {}) {
 export function setAuthState(isLoggedIn) {
   document.body.dataset.showLogin = isLoggedIn ? "0" : "1";
 
-  // IMPORTANT: keep CSS-driven anon overlay in sync
   document.body.classList.toggle("force-black", !isLoggedIn);
 
   // Navbar buttons
@@ -81,7 +80,7 @@ export function initRegisterForm() {
     const next = sessionStorage.getItem("postLoginPath") || "/home";
     sessionStorage.removeItem("postLoginPath");
     
-    // IMPORTANT: force server-rendered base shell
+    //force server-rendered base shell
     window.location.assign(next);
     
   });
@@ -119,7 +118,7 @@ export function initLoginForm() {
     const next = sessionStorage.getItem("postLoginPath") || "/home";
     sessionStorage.removeItem("postLoginPath");
     
-    // IMPORTANT: force server-rendered base shell
+    //  force server-rendered base shell
     window.location.assign(next);    
   });
 }

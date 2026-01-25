@@ -181,7 +181,7 @@ export function initLikeButtons() {
 
       const data = await res.json();
 
-      // Update ONLY inside the same comment/post container (avoid querySelector picking the first match)
+      // Update ONLY inside the same comment/post container 
       const container = button.closest(".comment, .post-card");
       if (!container) return;
 
