@@ -59,11 +59,6 @@ func CreatePostAPIHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if len(req.Categories) > 5 {
-	// 	http.Error(w, "Too many categories (max 5)", http.StatusBadRequest)
-	// 	return
-	// }
-
 	var cats []models.Category
 	for _, id := range req.Categories {
 		cats = append(cats, models.Category{ID: id})
