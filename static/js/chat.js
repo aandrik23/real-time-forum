@@ -288,13 +288,6 @@ headerEl.addEventListener("click", (e) => {
   toggleMinimize();
 });
 
-// Keep the button working too (optional)
-// document.getElementById("chat-minimize").addEventListener("click", (e) => {
-//   e.stopPropagation(); // prevent header click from double toggling
-//   toggleMinimize();
-// });
-
-
   // close chat
   document.getElementById("chat-close").addEventListener("click", () => {
     panel.remove();
