@@ -252,7 +252,6 @@ function openChat(user) {
       <div id="chat-panel-header">
         <span>Chat with ${escapeHtml(user.username)}</span>
         <div class="chat-panel-actions">
-          <button id="chat-minimize" aria-label="Minimize chat">—</button>
           <button id="chat-close" aria-label="Close chat">×</button>
         </div>
       </div>
@@ -266,17 +265,35 @@ function openChat(user) {
   document.body.appendChild(panel);
   // minimize chat
 
-  document.getElementById("chat-minimize").addEventListener("click", () => {
-    panel.classList.toggle("minimized");
+function toggleMinimize() {
+  panel.classList.toggle("minimized");
 
-    // If un-minimizing (no longer has 'minimized' class)
-    if (!panel.classList.contains("minimized")) {
-      clearUnreadForActiveChat();
-      sendReadReceipt();
-    }
+  // If un-minimizing
+  if (!panel.classList.contains("minimized")) {
+    clearUnreadForActiveChat();
+    sendReadReceipt();
+  }
 
-    renderMessages();
-  });
+  renderMessages();
+}
+
+// Make the entire header clickable
+const headerEl = document.getElementById("chat-panel-header");
+headerEl.style.cursor = "pointer";
+headerEl.addEventListener("click", (e) => {
+  // Don't toggle when clicking close button (or anything inside it)
+  if (e.target.closest("#chat-close")) return;
+
+  // Optional: also don't toggle if they click inside input area etc (not needed since header only)
+  toggleMinimize();
+});
+
+// Keep the button working too (optional)
+// document.getElementById("chat-minimize").addEventListener("click", (e) => {
+//   e.stopPropagation(); // prevent header click from double toggling
+//   toggleMinimize();
+// });
+
 
   // close chat
   document.getElementById("chat-close").addEventListener("click", () => {
